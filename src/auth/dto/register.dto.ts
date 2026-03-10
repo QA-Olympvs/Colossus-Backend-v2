@@ -1,0 +1,30 @@
+import { IsEmail, IsNotEmpty, IsOptional, IsString, IsUUID, MaxLength, MinLength } from 'class-validator';
+
+export class RegisterDto {
+  @IsUUID()
+  @IsNotEmpty()
+  business_id: string;
+
+  @IsUUID()
+  @IsOptional()
+  branch_id?: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(100)
+  first_name: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(100)
+  last_name: string;
+
+  @IsEmail()
+  @IsNotEmpty()
+  email: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(8)
+  password: string;
+}

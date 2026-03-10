@@ -1,0 +1,411 @@
+@baseUrl = http://localhost:3000/api/v1
+@businessId = 163e3c3d-d2b6-4cee-a698-7a81d394ae7e
+@branchId = a1c9e894-d0ee-4d92-87f4-2cd12e85f547
+@userId = 0054da32-854f-4075-96e7-9cb7b9592bea
+@roleId = b45b4073-e2cd-48c8-a7fc-20f8e0d8c7b7
+@categoryId = d21e1c46-b5df-44f1-90f1-53b132fd08e4
+@productId = aff6a5fb-a3a4-46b6-a34f-c256782eeec6
+@token = REPLACE_WITH_JWT_TOKEN
+
+### ============================================================
+### AUTH
+### ============================================================
+
+### Registrar un usuario (primer usuario del negocio)
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "business_id": "{{businessId}}",
+  "first_name": "Admin",
+  "last_name": "Principal",
+  "email": "admin@mitienda.com",
+  "password": "Password123!"
+}
+
+###
+
+### Login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "business_id": "{{businessId}}",
+  "email": "admin@mitienda.com",
+  "password": "Password123!"
+}
+
+###
+
+### Obtener perfil del usuario autenticado (requiere token)
+GET {{baseUrl}}/auth/profile
+Authorization: Bearer {{token}}
+
+###
+
+### ============================================================
+### BUSINESSES
+### ============================================================
+
+### Crear un negocio
+POST {{baseUrl}}/businesses
+Content-Type: application/json
+
+{
+  "name": "Mi Tienda SaaS",
+  "slug": "mi-tienda-saas",
+  "email": "admin@mitienda.com",
+  "phone": "+525551234567",
+  "address": "Av. Principal 123, Ciudad de México"
+}
+
+###
+
+### Obtener todos los negocios
+GET {{baseUrl}}/businesses
+
+###
+
+### Obtener un negocio por ID
+GET {{baseUrl}}/businesses/{{businessId}}
+
+###
+
+### Actualizar un negocio
+PATCH {{baseUrl}}/businesses/{{businessId}}
+Content-Type: application/json
+
+{
+  "name": "Mi Tienda SaaS Actualizada",
+  "phone": "+525559998888"
+}
+
+###
+
+### Desactivar un negocio (soft delete)
+DELETE {{baseUrl}}/businesses/{{businessId}}
+
+###
+
+### ============================================================
+### BRANCHES (SUCURSALES)
+### ============================================================
+
+### Crear una sucursal
+POST {{baseUrl}}/branches
+Content-Type: application/json
+
+{
+  "business_id": "{{businessId}}",
+  "name": "Sucursal Centro",
+  "address": "Calle Morelos 45, Centro",
+  "phone": "+525551112222",
+  "email": "centro@mitienda.com"
+}
+
+###
+
+### Obtener todas las sucursales
+GET {{baseUrl}}/branches
+
+###
+
+### Obtener sucursales de un negocio
+GET {{baseUrl}}/branches?businessId={{businessId}}
+
+###
+
+### Obtener una sucursal por ID
+GET {{baseUrl}}/branches/{{branchId}}
+
+###
+
+### Actualizar una sucursal
+PATCH {{baseUrl}}/branches/{{branchId}}
+Content-Type: application/json
+
+{
+  "name": "Sucursal Centro Actualizada",
+  "phone": "+525553334444"
+}
+
+###
+
+### Desactivar una sucursal (soft delete)
+DELETE {{baseUrl}}/branches/{{branchId}}
+
+###
+
+### ============================================================
+### ROLES
+### ============================================================
+
+### Crear rol ADMIN
+POST {{baseUrl}}/roles
+Content-Type: application/json
+
+{
+  "name": "ADMIN",
+  "description": "Administrador con acceso total al negocio"
+}
+
+###
+
+### Crear rol MANAGER
+POST {{baseUrl}}/roles
+Content-Type: application/json
+
+{
+  "name": "MANAGER",
+  "description": "Gerente de sucursal"
+}
+
+###
+
+### Crear rol EMPLOYEE
+POST {{baseUrl}}/roles
+Content-Type: application/json
+
+{
+  "name": "EMPLOYEE",
+  "description": "Empleado con acceso limitado"
+}
+
+###
+
+### Obtener todos los roles
+GET {{baseUrl}}/roles
+
+###
+
+### Obtener un rol por ID
+GET {{baseUrl}}/roles/{{roleId}}
+
+###
+
+### Actualizar un rol
+PATCH {{baseUrl}}/roles/{{roleId}}
+Content-Type: application/json
+
+{
+  "description": "Descripción actualizada del rol"
+}
+
+###
+
+### Eliminar un rol
+DELETE {{baseUrl}}/roles/{{roleId}}
+
+###
+
+### ============================================================
+### USERS
+### ============================================================
+
+### Crear un usuario
+POST {{baseUrl}}/users
+Content-Type: application/json
+
+{
+  "business_id": "{{businessId}}",
+  "branch_id": "{{branchId}}",
+  "first_name": "Juan",
+  "last_name": "Pérez",
+  "email": "juan.perez@mitienda.com",
+  "password": "Password123!"
+}
+
+###
+
+### Crear usuario sin sucursal asignada
+POST {{baseUrl}}/users
+Content-Type: application/json
+
+{
+  "business_id": "{{businessId}}",
+  "first_name": "María",
+  "last_name": "García",
+  "email": "maria.garcia@mitienda.com",
+  "password": "Password456!"
+}
+
+###
+
+### Obtener todos los usuarios
+GET {{baseUrl}}/users
+
+###
+
+### Obtener usuarios de un negocio
+GET {{baseUrl}}/users?businessId={{businessId}}
+
+###
+
+### Obtener un usuario por ID
+GET {{baseUrl}}/users/{{userId}}
+
+###
+
+### Actualizar un usuario
+PATCH {{baseUrl}}/users/{{userId}}
+Content-Type: application/json
+
+{
+  "first_name": "Juan Carlos",
+  "phone": "+525557778888"
+}
+
+###
+
+### Asignar rol a un usuario
+POST {{baseUrl}}/users/{{userId}}/roles
+Content-Type: application/json
+
+{
+  "role_id": "{{roleId}}"
+}
+
+###
+
+### Quitar rol a un usuario
+DELETE {{baseUrl}}/users/{{userId}}/roles/{{roleId}}
+
+###
+
+### Desactivar un usuario (soft delete)
+DELETE {{baseUrl}}/users/{{userId}}
+
+###
+
+### ============================================================
+### CATEGORIES
+### ============================================================
+
+### Crear una categoría raíz
+POST {{baseUrl}}/categories
+Content-Type: application/json
+
+{
+  "business_id": "{{businessId}}",
+  "name": "Electrónica",
+  "description": "Productos electrónicos y gadgets"
+}
+
+###
+
+### Crear una subcategoría
+POST {{baseUrl}}/categories
+Content-Type: application/json
+
+{
+  "business_id": "{{businessId}}",
+  "parent_id": "{{categoryId}}",
+  "name": "Smartphones",
+  "description": "Teléfonos inteligentes"
+}
+
+###
+
+### Obtener todas las categorías
+GET {{baseUrl}}/categories
+
+###
+
+### Obtener categorías de un negocio
+GET {{baseUrl}}/categories?businessId={{businessId}}
+
+###
+
+### Obtener una categoría por ID
+GET {{baseUrl}}/categories/{{categoryId}}
+
+###
+
+### Actualizar una categoría
+PATCH {{baseUrl}}/categories/{{categoryId}}
+Content-Type: application/json
+
+{
+  "name": "Electrónica y Tecnología",
+  "description": "Descripción actualizada"
+}
+
+###
+
+### Desactivar una categoría (soft delete)
+DELETE {{baseUrl}}/categories/{{categoryId}}
+
+###
+
+### ============================================================
+### PRODUCTS
+### ============================================================
+
+### Crear un producto
+POST {{baseUrl}}/products
+Content-Type: application/json
+
+{
+  "business_id": "{{businessId}}",
+  "category_id": "{{categoryId}}",
+  "name": "iPhone 15 Pro",
+  "description": "Smartphone Apple iPhone 15 Pro 256GB",
+  "sku": "APPL-IP15P-256",
+  "price": 19999.99,
+  "stock": 50
+}
+
+###
+
+### Crear un producto asignado a sucursal
+POST {{baseUrl}}/products
+Content-Type: application/json
+
+{
+  "business_id": "{{businessId}}",
+  "branch_id": "{{branchId}}",
+  "category_id": "{{categoryId}}",
+  "name": "Samsung Galaxy S24",
+  "description": "Smartphone Samsung Galaxy S24 128GB",
+  "sku": "SAMS-GS24-128",
+  "price": 14999.99,
+  "stock": 30
+}
+
+###
+
+### Obtener todos los productos
+GET {{baseUrl}}/products
+
+###
+
+### Obtener productos de un negocio
+GET {{baseUrl}}/products?businessId={{businessId}}
+
+###
+
+### Obtener productos de una sucursal
+GET {{baseUrl}}/products?businessId={{businessId}}&branchId={{branchId}}
+
+###
+
+### Obtener un producto por ID
+GET {{baseUrl}}/products/{{productId}}
+
+###
+
+### Actualizar un producto
+PATCH {{baseUrl}}/products/{{productId}}
+Content-Type: application/json
+
+{
+  "price": 17999.99,
+  "stock": 45
+}
+
+###
+
+### Desactivar un producto (soft delete)
+DELETE {{baseUrl}}/products/{{productId}}
+
+###
