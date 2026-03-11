@@ -1,8 +1,19 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  OneToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { Exclude } from 'class-transformer';
 import { Business } from '../../business/entities/business.entity';
 import { Branch } from '../../branches/entities/branch.entity';
 import { UserRole } from './user-role.entity';
+import { Customer } from '../../customers/entities/customer.entity';
 
 @Entity('users')
 export class User {
@@ -50,4 +61,7 @@ export class User {
 
   @OneToMany(() => UserRole, (userRole) => userRole.user)
   user_roles: UserRole[];
+
+  @OneToOne(() => Customer, (customer) => customer.user)
+  customer: Customer;
 }
