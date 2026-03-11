@@ -1,17 +1,18 @@
 @baseUrl = http://localhost:3000/api/v1
-@businessId = 163e3c3d-d2b6-4cee-a698-7a81d394ae7e
+@businessId = 7f702e99-aa9f-441e-8d3d-fdc52138b9b4
 @branchId = a1c9e894-d0ee-4d92-87f4-2cd12e85f547
 @userId = 0054da32-854f-4075-96e7-9cb7b9592bea
 @roleId = b45b4073-e2cd-48c8-a7fc-20f8e0d8c7b7
 @categoryId = d21e1c46-b5df-44f1-90f1-53b132fd08e4
 @productId = aff6a5fb-a3a4-46b6-a34f-c256782eeec6
-@token = REPLACE_WITH_JWT_TOKEN
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0NjRkNGNhNC1mODdiLTQ0NTktYmZlNi0zZjYzOTQwN2VhYTQiLCJlbWFpbCI6ImFkbWluQG1pdGllbmRhLmNvbSIsImJ1c2luZXNzX2lkIjoiN2Y3MDJlOTktYWE5Zi00NDFlLThkM2QtZmRjNTIxMzhiOWI0Iiwicm9sZXMiOlsiQURNSU4iXSwicGVybWlzc2lvbnMiOlsiYnVzaW5lc3NlczpjcmVhdGUiLCJidXNpbmVzc2VzOnJlYWQiLCJidXNpbmVzc2VzOnVwZGF0ZSIsImJ1c2luZXNzZXM6ZGVsZXRlIiwiYnVzaW5lc3NlczptYW5hZ2UiLCJicmFuY2hlczpjcmVhdGUiLCJicmFuY2hlczpyZWFkIiwiYnJhbmNoZXM6dXBkYXRlIiwiYnJhbmNoZXM6ZGVsZXRlIiwiYnJhbmNoZXM6bWFuYWdlIiwidXNlcnM6Y3JlYXRlIiwidXNlcnM6cmVhZCIsInVzZXJzOnVwZGF0ZSIsInVzZXJzOmRlbGV0ZSIsInVzZXJzOm1hbmFnZSIsInJvbGVzOmNyZWF0ZSIsInJvbGVzOnJlYWQiLCJyb2xlczp1cGRhdGUiLCJyb2xlczpkZWxldGUiLCJyb2xlczptYW5hZ2UiLCJjYXRlZ29yaWVzOmNyZWF0ZSIsImNhdGVnb3JpZXM6cmVhZCIsImNhdGVnb3JpZXM6dXBkYXRlIiwiY2F0ZWdvcmllczpkZWxldGUiLCJjYXRlZ29yaWVzOm1hbmFnZSIsInByb2R1Y3RzOmNyZWF0ZSIsInByb2R1Y3RzOnJlYWQiLCJwcm9kdWN0czp1cGRhdGUiLCJwcm9kdWN0czpkZWxldGUiLCJwcm9kdWN0czptYW5hZ2UiLCJwZXJtaXNzaW9uczpjcmVhdGUiLCJwZXJtaXNzaW9uczpyZWFkIiwicGVybWlzc2lvbnM6dXBkYXRlIiwicGVybWlzc2lvbnM6ZGVsZXRlIiwicGVybWlzc2lvbnM6bWFuYWdlIl0sImlhdCI6MTc3MzE4NDY0NywiZXhwIjoxNzczNzg5NDQ3fQ.GKtXQetiV_nbp8U0YNo7HmBn5cPGP3Be1FBPgbAYxkc
 
 ### ============================================================
 ### AUTH
 ### ============================================================
 
 ### Registrar un usuario (primer usuario del negocio)
+### Cuando se registra el primer usuario de un negocio, se crea el rol ADMIN y se le asignan todos los permisos
 POST {{baseUrl}}/auth/register
 Content-Type: application/json
 
@@ -39,6 +40,91 @@ Content-Type: application/json
 
 ### Obtener perfil del usuario autenticado (requiere token)
 GET {{baseUrl}}/auth/profile
+Authorization: Bearer {{token}}
+
+###
+
+### ============================================================
+### PERMISSIONS
+### ============================================================
+
+### Crear permiso: products:read
+POST {{baseUrl}}/permissions
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "action": "read",
+  "resource": "products",
+  "description": "Ver productos"
+}
+
+###
+
+### Crear permiso: products:create
+POST {{baseUrl}}/permissions
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "action": "create",
+  "resource": "products",
+  "description": "Crear productos"
+}
+
+###
+
+### Crear permiso: products:update
+POST {{baseUrl}}/permissions
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "action": "update",
+  "resource": "products",
+  "description": "Actualizar productos"
+}
+
+###
+
+### Crear permiso: users:manage (acceso total a usuarios)
+POST {{baseUrl}}/permissions
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "action": "manage",
+  "resource": "users",
+  "description": "Gestión completa de usuarios"
+}
+
+###
+
+### Listar todos los permisos
+GET {{baseUrl}}/permissions
+Authorization: Bearer {{token}}
+
+###
+
+### Asignar permiso a un rol
+POST {{baseUrl}}/permissions/roles/{{roleId}}/assign
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "permission_id": "REPLACE_WITH_PERMISSION_ID"
+}
+
+###
+
+### Ver permisos de un rol
+GET {{baseUrl}}/permissions/roles/{{roleId}}
+Authorization: Bearer {{token}}
+
+###
+
+### Quitar permiso de un rol
+DELETE {{baseUrl}}/permissions/roles/{{roleId}}/permissions/REPLACE_WITH_PERMISSION_ID
 Authorization: Bearer {{token}}
 
 ###
@@ -76,7 +162,7 @@ PATCH {{baseUrl}}/businesses/{{businessId}}
 Content-Type: application/json
 
 {
-  "name": "Mi Tienda SaaS Actualizada",
+  "name": "Mi Tienda SaaS",
   "phone": "+525559998888"
 }
 

@@ -39,4 +39,14 @@ export class RolesService {
     const role = await this.findOne(id);
     await this.roleRepository.remove(role);
   }
+
+  async findOrCreate(name: string, description?: string): Promise<Role> {
+    let role = await this.roleRepository.findOne({ where: { name } });
+    if (!role) {
+      role = await this.roleRepository.save(
+        this.roleRepository.create({ name, description }),
+      );
+    }
+    return role;
+  }
 }

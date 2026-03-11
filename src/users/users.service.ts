@@ -44,10 +44,14 @@ export class UsersService {
     return user;
   }
 
+  async countByBusiness(businessId: string): Promise<number> {
+    return this.userRepository.count({ where: { business_id: businessId, is_active: true } });
+  }
+
   async findByEmail(email: string, businessId: string): Promise<User | null> {
     return this.userRepository.findOne({
       where: { email, business_id: businessId, is_active: true },
-      relations: ['user_roles', 'user_roles.role'],
+      relations: ['user_roles', 'user_roles.role', 'user_roles.role.role_permissions', 'user_roles.role.role_permissions.permission'],
     });
   }
 
