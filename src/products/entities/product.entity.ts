@@ -1,5 +1,4 @@
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
-import { Business } from '../../business/entities/business.entity';
 import { Branch } from '../../branches/entities/branch.entity';
 import { Category } from '../../categories/entities/category.entity';
 
@@ -7,9 +6,6 @@ import { Category } from '../../categories/entities/category.entity';
 export class Product {
   @PrimaryGeneratedColumn('uuid')
   id: string;
-
-  @Column()
-  business_id: string;
 
   @Column({ nullable: true })
   branch_id: string;
@@ -43,10 +39,6 @@ export class Product {
 
   @UpdateDateColumn()
   updated_at: Date;
-
-  @ManyToOne(() => Business, (business) => business.products)
-  @JoinColumn({ name: 'business_id' })
-  business: Business;
 
   @ManyToOne(() => Branch, (branch) => branch.products, { nullable: true })
   @JoinColumn({ name: 'branch_id' })

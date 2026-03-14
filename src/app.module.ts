@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { BusinessModule } from './business/business.module';
 import { BranchesModule } from './branches/branches.module';
 import { RolesModule } from './roles/roles.module';
 import { UsersModule } from './users/users.module';
@@ -11,6 +10,7 @@ import { AuthModule } from './auth/auth.module';
 import { PermissionsModule } from './permissions/permissions.module';
 import { CustomersModule } from './customers/customers.module';
 import { CustomerDirectionsModule } from './customer-directions/customer-directions.module';
+import { OrdersModule } from './orders/orders.module';
 
 @Module({
   imports: [
@@ -30,10 +30,11 @@ import { CustomerDirectionsModule } from './customer-directions/customer-directi
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         synchronize: configService.get<string>('NODE_ENV') === 'development',
         logging: configService.get<string>('NODE_ENV') === 'development',
+        timezone: 'UTC',
+        dateStrings: true,
       }),
       inject: [ConfigService],
     }),
-    BusinessModule,
     BranchesModule,
     RolesModule,
     UsersModule,
@@ -43,6 +44,7 @@ import { CustomerDirectionsModule } from './customer-directions/customer-directi
     PermissionsModule,
     CustomersModule,
     CustomerDirectionsModule,
+    OrdersModule,
   ],
 })
 export class AppModule {}

@@ -8,6 +8,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Customer } from '../../customers/entities/customer.entity';
+import { Branch } from '../../branches/entities/branch.entity';
 
 @Entity('customer_directions')
 export class CustomerDirection {
@@ -16,6 +17,9 @@ export class CustomerDirection {
 
   @Column()
   customer_id: string;
+
+  @Column({ nullable: true })
+  branch_id: string;
 
   @Column({ length: 150 })
   recipient_name: string;
@@ -50,6 +54,12 @@ export class CustomerDirection {
   @Column({ nullable: true, type: 'text' })
   reference: string;
 
+  @Column({ nullable: true, type: 'decimal', precision: 10, scale: 6 })
+  latitude: number;
+
+  @Column({ nullable: true, type: 'decimal', precision: 10, scale: 6 })
+  longitude: number;
+
   @Column({ default: false })
   is_default: boolean;
 
@@ -62,4 +72,8 @@ export class CustomerDirection {
   @ManyToOne(() => Customer, (customer) => customer.directions)
   @JoinColumn({ name: 'customer_id' })
   customer: Customer;
+
+  @ManyToOne(() => Branch, { nullable: true })
+  @JoinColumn({ name: 'branch_id' })
+  branch: Branch;
 }

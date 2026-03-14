@@ -1,15 +1,12 @@
-import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn, JoinColumn } from 'typeorm';
-import { Business } from '../../business/entities/business.entity';
+import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { Product } from '../../products/entities/product.entity';
+import { BranchSchedule } from './branch-schedule.entity';
 
 @Entity('branches')
 export class Branch {
   @PrimaryGeneratedColumn('uuid')
   id: string;
-
-  @Column()
-  business_id: string;
 
   @Column({ length: 150 })
   name: string;
@@ -17,11 +14,38 @@ export class Branch {
   @Column({ nullable: true, type: 'text' })
   address: string;
 
+  @Column({ nullable: true, type: 'decimal', precision: 10, scale: 6 })
+  latitude: number;
+
+  @Column({ nullable: true, type: 'decimal', precision: 10, scale: 6 })
+  longitude: number;
+
   @Column({ nullable: true, length: 20 })
   phone: string;
 
   @Column({ nullable: true, length: 150 })
   email: string;
+
+  @Column({ nullable: true, length: 13 })
+  rfc: string;
+
+  @Column({ default: true })
+  is_accepting_orders: boolean;
+
+  @Column({ default: false })
+  has_delivery: boolean;
+
+  @Column({ default: true })
+  has_pickup: boolean;
+
+  @Column({ nullable: true, type: 'decimal', precision: 10, scale: 2 })
+  delivery_fee: number;
+
+  @Column({ nullable: true, type: 'decimal', precision: 10, scale: 2 })
+  delivery_min_amount: number;
+
+  @Column({ nullable: true, type: 'decimal', precision: 10, scale: 2 })
+  delivery_radius_km: number;
 
   @Column({ default: true })
   is_active: boolean;
@@ -32,13 +56,12 @@ export class Branch {
   @UpdateDateColumn()
   updated_at: Date;
 
-  @ManyToOne(() => Business, (business) => business.branches)
-  @JoinColumn({ name: 'business_id' })
-  business: Business;
-
   @OneToMany(() => User, (user) => user.branch)
   users: User[];
 
   @OneToMany(() => Product, (product) => product.branch)
   products: Product[];
+
+  @OneToMany(() => BranchSchedule, (schedule) => schedule.branch)
+  schedules: BranchSchedule[];
 }

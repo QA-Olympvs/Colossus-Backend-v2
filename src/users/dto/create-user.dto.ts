@@ -2,10 +2,6 @@ import { IsEmail, IsNotEmpty, IsOptional, IsString, IsUUID, MaxLength, MinLength
 
 export class CreateUserDto {
   @IsUUID()
-  @IsNotEmpty()
-  business_id: string;
-
-  @IsUUID()
   @IsOptional()
   branch_id?: string;
 
@@ -32,4 +28,7 @@ export class CreateUserDto {
   @IsOptional()
   @MaxLength(20)
   phone?: string;
+
+  @IsOptional()
+  is_owner?: boolean;
 }

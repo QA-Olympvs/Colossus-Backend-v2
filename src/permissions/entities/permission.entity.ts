@@ -10,12 +10,15 @@ export enum PermissionAction {
 }
 
 export enum PermissionResource {
-  BUSINESSES = 'businesses',
   BRANCHES = 'branches',
+  BRANCH_SCHEDULES = 'branch_schedules',
   USERS = 'users',
   ROLES = 'roles',
   CATEGORIES = 'categories',
   PRODUCTS = 'products',
+  ORDERS = 'orders',
+  CUSTOMERS = 'customers',
+  CUSTOMER_DIRECTIONS = 'customer_directions',
   PERMISSIONS = 'permissions',
 }
 

@@ -1,27 +1,35 @@
 @baseUrl = http://localhost:3000/api/v1
-@businessId = 7f702e99-aa9f-441e-8d3d-fdc52138b9b4
-@branchId = a1c9e894-d0ee-4d92-87f4-2cd12e85f547
-@userId = 0054da32-854f-4075-96e7-9cb7b9592bea
-@roleId = b45b4073-e2cd-48c8-a7fc-20f8e0d8c7b7
-@categoryId = d21e1c46-b5df-44f1-90f1-53b132fd08e4
-@productId = aff6a5fb-a3a4-46b6-a34f-c256782eeec6
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0NjRkNGNhNC1mODdiLTQ0NTktYmZlNi0zZjYzOTQwN2VhYTQiLCJlbWFpbCI6ImFkbWluQG1pdGllbmRhLmNvbSIsImJ1c2luZXNzX2lkIjoiN2Y3MDJlOTktYWE5Zi00NDFlLThkM2QtZmRjNTIxMzhiOWI0Iiwicm9sZXMiOlsiQURNSU4iXSwicGVybWlzc2lvbnMiOlsiYnVzaW5lc3NlczpjcmVhdGUiLCJidXNpbmVzc2VzOnJlYWQiLCJidXNpbmVzc2VzOnVwZGF0ZSIsImJ1c2luZXNzZXM6ZGVsZXRlIiwiYnVzaW5lc3NlczptYW5hZ2UiLCJicmFuY2hlczpjcmVhdGUiLCJicmFuY2hlczpyZWFkIiwiYnJhbmNoZXM6dXBkYXRlIiwiYnJhbmNoZXM6ZGVsZXRlIiwiYnJhbmNoZXM6bWFuYWdlIiwidXNlcnM6Y3JlYXRlIiwidXNlcnM6cmVhZCIsInVzZXJzOnVwZGF0ZSIsInVzZXJzOmRlbGV0ZSIsInVzZXJzOm1hbmFnZSIsInJvbGVzOmNyZWF0ZSIsInJvbGVzOnJlYWQiLCJyb2xlczp1cGRhdGUiLCJyb2xlczpkZWxldGUiLCJyb2xlczptYW5hZ2UiLCJjYXRlZ29yaWVzOmNyZWF0ZSIsImNhdGVnb3JpZXM6cmVhZCIsImNhdGVnb3JpZXM6dXBkYXRlIiwiY2F0ZWdvcmllczpkZWxldGUiLCJjYXRlZ29yaWVzOm1hbmFnZSIsInByb2R1Y3RzOmNyZWF0ZSIsInByb2R1Y3RzOnJlYWQiLCJwcm9kdWN0czp1cGRhdGUiLCJwcm9kdWN0czpkZWxldGUiLCJwcm9kdWN0czptYW5hZ2UiLCJwZXJtaXNzaW9uczpjcmVhdGUiLCJwZXJtaXNzaW9uczpyZWFkIiwicGVybWlzc2lvbnM6dXBkYXRlIiwicGVybWlzc2lvbnM6ZGVsZXRlIiwicGVybWlzc2lvbnM6bWFuYWdlIl0sImlhdCI6MTc3MzE4NDY0NywiZXhwIjoxNzczNzg5NDQ3fQ.GKtXQetiV_nbp8U0YNo7HmBn5cPGP3Be1FBPgbAYxkc
+@branchId = a5664473-a72c-426b-8162-72de03b573a5
+@userId = 
+@roleId = 
+@categoryId = 
+@productId = 
+@customerId = 
+@orderId = 
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyOGRhZDU2Yy0zMzQzLTQwODktOGQ3Yi00ZjBjOTA1YWJmZjAiLCJlbWFpbCI6ImFkbWluQG1pdGllbmRhLmNvbSIsImJyYW5jaF9pZCI6ImE1NjY0NDczLWE3MmMtNDI2Yi04MTYyLTcyZGUwM2I1NzNhNSIsInJvbGVzIjpbIkFETUlOIl0sInBlcm1pc3Npb25zIjpbXSwiaWF0IjoxNzczNDY0OTEzLCJleHAiOjE3NzQwNjk3MTN9.dOhuarJWGFE3OCSQQhU9n1NQv00BLvhn0L2p0MdQ7zA
 
 ### ============================================================
 ### AUTH
 ### ============================================================
 
-### Registrar un usuario (primer usuario del negocio)
-### Cuando se registra el primer usuario de un negocio, se crea el rol ADMIN y se le asignan todos los permisos
+### Registrar primer usuario (onboarding completo)
+### Crea: usuario admin + rol ADMIN + permisos + sucursal principal + horarios
 POST {{baseUrl}}/auth/register
 Content-Type: application/json
 
 {
-  "business_id": "{{businessId}}",
-  "first_name": "Admin",
+  "first_name": "Administrador",
   "last_name": "Principal",
   "email": "admin@mitienda.com",
-  "password": "Password123!"
+  "is_owner": true,
+  "phone": "+525551234567",
+  "password": "Password123!",
+  "branch_name": "Mi Tienda Centro",
+  "branch_address": "Calle Morelos 45, Centro",
+  "branch_phone": "+525551112222",
+  "branch_email": "centro@mitienda.com",
+  "branch_latitude": 19.432608,
+  "branch_longitude": -99.133209
 }
 
 ###
@@ -31,7 +39,6 @@ POST {{baseUrl}}/auth/login
 Content-Type: application/json
 
 {
-  "business_id": "{{businessId}}",
   "email": "admin@mitienda.com",
   "password": "Password123!"
 }
@@ -40,68 +47,6 @@ Content-Type: application/json
 
 ### Obtener perfil del usuario autenticado (requiere token)
 GET {{baseUrl}}/auth/profile
-Authorization: Bearer {{token}}
-
-###
-
-### ============================================================
-### PERMISSIONS
-### ============================================================
-
-### Crear permiso: products:read
-POST {{baseUrl}}/permissions
-Authorization: Bearer {{token}}
-Content-Type: application/json
-
-{
-  "action": "read",
-  "resource": "products",
-  "description": "Ver productos"
-}
-
-###
-
-### Crear permiso: products:create
-POST {{baseUrl}}/permissions
-Authorization: Bearer {{token}}
-Content-Type: application/json
-
-{
-  "action": "create",
-  "resource": "products",
-  "description": "Crear productos"
-}
-
-###
-
-### Crear permiso: products:update
-POST {{baseUrl}}/permissions
-Authorization: Bearer {{token}}
-Content-Type: application/json
-
-{
-  "action": "update",
-  "resource": "products",
-  "description": "Actualizar productos"
-}
-
-###
-
-### Crear permiso: users:manage (acceso total a usuarios)
-POST {{baseUrl}}/permissions
-Authorization: Bearer {{token}}
-Content-Type: application/json
-
-{
-  "action": "manage",
-  "resource": "users",
-  "description": "Gestión completa de usuarios"
-}
-
-###
-
-### Listar todos los permisos
-GET {{baseUrl}}/permissions
 Authorization: Bearer {{token}}
 
 ###
@@ -130,74 +75,35 @@ Authorization: Bearer {{token}}
 ###
 
 ### ============================================================
-### BUSINESSES
-### ============================================================
-
-### Crear un negocio
-POST {{baseUrl}}/businesses
-Content-Type: application/json
-
-{
-  "name": "Mi Tienda SaaS",
-  "slug": "mi-tienda-saas",
-  "email": "admin@mitienda.com",
-  "phone": "+525551234567",
-  "address": "Av. Principal 123, Ciudad de México"
-}
-
-###
-
-### Obtener todos los negocios
-GET {{baseUrl}}/businesses
-
-###
-
-### Obtener un negocio por ID
-GET {{baseUrl}}/businesses/{{businessId}}
-
-###
-
-### Actualizar un negocio
-PATCH {{baseUrl}}/businesses/{{businessId}}
-Content-Type: application/json
-
-{
-  "name": "Mi Tienda SaaS",
-  "phone": "+525559998888"
-}
-
-###
-
-### Desactivar un negocio (soft delete)
-DELETE {{baseUrl}}/businesses/{{businessId}}
-
-###
-
-### ============================================================
 ### BRANCHES (SUCURSALES)
 ### ============================================================
 
 ### Crear una sucursal
+### Cuando se crea una sucursal nueva, automaticamente se crean los permisos para el ADMIN y los horarios
 POST {{baseUrl}}/branches
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "business_id": "{{businessId}}",
-  "name": "Sucursal Centro",
-  "address": "Calle Morelos 45, Centro",
+  "name": "Sucursal Secundaria",
+  "address": "Calle Secundaria 13, Secundaria",
+  "latitude": 19.432608,
+  "longitude": -99.133209,
   "phone": "+525551112222",
-  "email": "centro@mitienda.com"
+  "email": "secundaria@mitienda.com",
+  "rfc": "EKU9003173C9",
+  "is_accepting_orders": true,
+  "has_delivery": true,
+  "has_pickup": true,
+  "delivery_fee": 50.00,
+  "delivery_min_amount": 250.00,
+  "delivery_radius_km": 10.0
 }
 
 ###
 
 ### Obtener todas las sucursales
 GET {{baseUrl}}/branches
-
-###
-
-### Obtener sucursales de un negocio
-GET {{baseUrl}}/branches?businessId={{businessId}}
 
 ###
 
@@ -223,17 +129,46 @@ DELETE {{baseUrl}}/branches/{{branchId}}
 ###
 
 ### ============================================================
-### ROLES
+### BRANCH SCHEDULES (HORARIOS)
 ### ============================================================
 
-### Crear rol ADMIN
-POST {{baseUrl}}/roles
+### Obtener horarios de una sucursal
+GET {{baseUrl}}/branches/{{branchId}}/schedules
+
+###
+
+### Crear/actualizar horario de un día (upsert)
+POST {{baseUrl}}/branches/{{branchId}}/schedules
 Content-Type: application/json
 
 {
-  "name": "ADMIN",
-  "description": "Administrador con acceso total al negocio"
+  "day_of_week": "monday",
+  "open_time": "09:00",
+  "close_time": "21:00",
+  "is_closed": false
 }
+
+###
+
+### Marcar un día como cerrado
+POST {{baseUrl}}/branches/{{branchId}}/schedules
+Content-Type: application/json
+
+{
+  "day_of_week": "sunday",
+  "is_closed": true
+}
+
+###
+
+### Eliminar horario de un día
+DELETE {{baseUrl}}/branches/{{branchId}}/schedules/REPLACE_WITH_SCHEDULE_ID
+
+###
+
+### ============================================================
+### ROLES
+### ============================================================
 
 ###
 
@@ -293,7 +228,6 @@ POST {{baseUrl}}/users
 Content-Type: application/json
 
 {
-  "business_id": "{{businessId}}",
   "branch_id": "{{branchId}}",
   "first_name": "Juan",
   "last_name": "Pérez",
@@ -308,7 +242,6 @@ POST {{baseUrl}}/users
 Content-Type: application/json
 
 {
-  "business_id": "{{businessId}}",
   "first_name": "María",
   "last_name": "García",
   "email": "maria.garcia@mitienda.com",
@@ -321,9 +254,6 @@ Content-Type: application/json
 GET {{baseUrl}}/users
 
 ###
-
-### Obtener usuarios de un negocio
-GET {{baseUrl}}/users?businessId={{businessId}}
 
 ###
 
@@ -338,7 +268,8 @@ Content-Type: application/json
 
 {
   "first_name": "Juan Carlos",
-  "phone": "+525557778888"
+  "phone": "+525557778888",
+  "is_owner": true
 }
 
 ###
@@ -372,7 +303,7 @@ POST {{baseUrl}}/categories
 Content-Type: application/json
 
 {
-  "business_id": "{{businessId}}",
+  "branch_id": "{{branchId}}",
   "name": "Electrónica",
   "description": "Productos electrónicos y gadgets"
 }
@@ -384,7 +315,6 @@ POST {{baseUrl}}/categories
 Content-Type: application/json
 
 {
-  "business_id": "{{businessId}}",
   "parent_id": "{{categoryId}}",
   "name": "Smartphones",
   "description": "Teléfonos inteligentes"
@@ -396,9 +326,6 @@ Content-Type: application/json
 GET {{baseUrl}}/categories
 
 ###
-
-### Obtener categorías de un negocio
-GET {{baseUrl}}/categories?businessId={{businessId}}
 
 ###
 
@@ -432,11 +359,10 @@ POST {{baseUrl}}/products
 Content-Type: application/json
 
 {
-  "business_id": "{{businessId}}",
+  "branch_id": "{{branchId}}",
   "category_id": "{{categoryId}}",
   "name": "iPhone 15 Pro",
   "description": "Smartphone Apple iPhone 15 Pro 256GB",
-  "sku": "APPL-IP15P-256",
   "price": 19999.99,
   "stock": 50
 }
@@ -448,12 +374,10 @@ POST {{baseUrl}}/products
 Content-Type: application/json
 
 {
-  "business_id": "{{businessId}}",
   "branch_id": "{{branchId}}",
   "category_id": "{{categoryId}}",
   "name": "Samsung Galaxy S24",
   "description": "Smartphone Samsung Galaxy S24 128GB",
-  "sku": "SAMS-GS24-128",
   "price": 14999.99,
   "stock": 30
 }
@@ -465,13 +389,8 @@ GET {{baseUrl}}/products
 
 ###
 
-### Obtener productos de un negocio
-GET {{baseUrl}}/products?businessId={{businessId}}
-
-###
-
 ### Obtener productos de una sucursal
-GET {{baseUrl}}/products?businessId={{businessId}}&branchId={{branchId}}
+GET {{baseUrl}}/products?branchId={{branchId}}
 
 ###
 
@@ -493,5 +412,149 @@ Content-Type: application/json
 
 ### Desactivar un producto (soft delete)
 DELETE {{baseUrl}}/products/{{productId}}
+
+###
+
+### ============================================================
+### ORDERS (PEDIDOS)
+### ============================================================
+
+### Crear una orden (pickup)
+POST {{baseUrl}}/orders
+Content-Type: application/json
+
+{
+  "branch_id": "{{branchId}}",
+  "customer_id": "{{customerId}}",
+  "type": "pickup",
+  "notes": "Sin cebolla en el producto 1",
+  "discount_amount": 0,
+  "tax_amount": 0,
+  "delivery_fee": 0,
+  "items": [
+    {
+      "product_id": "{{productId}}",
+      "quantity": 2,
+      "unit_price": 19999.99,
+      "discount_amount": 0
+    }
+  ]
+}
+
+###
+
+### Crear una orden (delivery)
+POST {{baseUrl}}/orders
+Content-Type: application/json
+
+{
+  "branch_id": "{{branchId}}",
+  "customer_id": "{{customerId}}",
+  "delivery_address_id": "REPLACE_WITH_DIRECTION_ID",
+  "type": "delivery",
+  "delivery_fee": 50.00,
+  "tax_amount": 0,
+  "items": [
+    {
+      "product_id": "{{productId}}",
+      "quantity": 1,
+      "unit_price": 14999.99
+    }
+  ]
+}
+
+###
+
+### Obtener todas las órdenes
+GET {{baseUrl}}/orders
+
+###
+
+### Obtener órdenes de una sucursal
+GET {{baseUrl}}/orders?branchId={{branchId}}
+
+###
+
+### Obtener órdenes por status
+GET {{baseUrl}}/orders?branchId={{branchId}}&status=pending
+
+###
+
+### Obtener una orden por ID
+GET {{baseUrl}}/orders/{{orderId}}
+
+###
+
+### Buscar orden por número
+GET {{baseUrl}}/orders/number/ORD-REPLACE_WITH_NUMBER
+
+###
+
+### Actualizar status de una orden
+PATCH {{baseUrl}}/orders/{{orderId}}/status
+Content-Type: application/json
+
+{
+  "status": "confirmed"
+}
+
+###
+
+### Cancelar una orden
+PATCH {{baseUrl}}/orders/{{orderId}}/status
+Content-Type: application/json
+
+{
+  "status": "cancelled",
+  "cancelled_reason": "Cliente solicitó cancelación"
+}
+
+###
+
+### Archivar una orden (delivered/cancelled)
+PATCH {{baseUrl}}/orders/{{orderId}}/archive
+
+###
+
+### ============================================================
+### PAYMENTS (PAGOS)
+### ============================================================
+
+### Ver pagos de una orden
+GET {{baseUrl}}/orders/{{orderId}}/payments
+
+###
+
+### Registrar pago en efectivo
+POST {{baseUrl}}/orders/{{orderId}}/payments
+Content-Type: application/json
+
+{
+  "method": "cash",
+  "amount": 39999.98
+}
+
+###
+
+### Registrar pago con tarjeta
+POST {{baseUrl}}/orders/{{orderId}}/payments
+Content-Type: application/json
+
+{
+  "method": "card",
+  "amount": 19999.99,
+  "reference": "TXN-ABC123456"
+}
+
+###
+
+### Pago parcial (combinado efectivo + tarjeta)
+POST {{baseUrl}}/orders/{{orderId}}/payments
+Content-Type: application/json
+
+{
+  "method": "cash",
+  "amount": 10000.00
+}
 
 ###

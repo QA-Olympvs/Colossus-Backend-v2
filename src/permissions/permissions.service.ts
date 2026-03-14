@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Permission, PermissionAction, PermissionResource } from './entities/permission.entity';
 import { RolePermission } from './entities/role-permission.entity';
+import { BranchPermission } from './entities/branch-permission.entity';
 import { CreatePermissionDto } from './dto/create-permission.dto';
 import { UpdatePermissionDto } from './dto/update-permission.dto';
 import { AssignPermissionDto } from './dto/assign-permission.dto';
@@ -14,6 +15,8 @@ export class PermissionsService {
     private readonly permissionRepository: Repository<Permission>,
     @InjectRepository(RolePermission)
     private readonly rolePermissionRepository: Repository<RolePermission>,
+    @InjectRepository(BranchPermission)
+    private readonly branchPermissionRepository: Repository<BranchPermission>,
   ) {}
 
   async create(createPermissionDto: CreatePermissionDto): Promise<Permission> {
@@ -113,5 +116,36 @@ export class PermissionsService {
         );
       }
     }
+  }
+
+  async assignManagePermissionsToRoleForBranch(roleId: string, branchId: string): Promise<void> {
+    const resources = Object.values(PermissionResource);
+    for (const resource of resources) {
+      const permission = await this.permissionRepository.findOne({
+        where: { action: PermissionAction.MANAGE, resource },
+      });
+      if (!permission) continue;
+      
+      const existing = await this.branchPermissionRepository.findOne({
+        where: { role: { id: roleId }, permission: { id: permission.id }, branch: { id: branchId } },
+      });
+      if (!existing) {
+        await this.branchPermissionRepository.save(
+          this.branchPermissionRepository.create({
+            role: { id: roleId },
+            permission: { id: permission.id },
+            branch: { id: branchId },
+          }),
+        );
+      }
+    }
+  }
+
+  async getPermissionsForRoleInBranch(roleId: string, branchId: string): Promise<Permission[]> {
+    const branchPermissions = await this.branchPermissionRepository.find({
+      where: { role: { id: roleId }, branch: { id: branchId } },
+      relations: ['permission'],
+    });
+    return branchPermissions.map((bp) => bp.permission);
   }
 }

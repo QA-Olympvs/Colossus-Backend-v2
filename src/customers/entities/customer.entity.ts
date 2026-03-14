@@ -3,12 +3,14 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
+  ManyToOne,
   OneToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
+import { Branch } from '../../branches/entities/branch.entity';
 import { CustomerDirection } from '../../customer-directions/entities/customer-direction.entity';
 
 @Entity('customers')
@@ -31,6 +33,9 @@ export class Customer {
   @Column({ length: 150 })
   email: string;
 
+  @Column({ length: 20, nullable: true })
+  phone: string;
+
   @CreateDateColumn()
   created_at: Date;
 
@@ -41,9 +46,6 @@ export class Customer {
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @OneToMany(
-    () => CustomerDirection,
-    (customerDirection) => customerDirection.customer,
-  )
+  @OneToMany(() => CustomerDirection, (customerDirection) => customerDirection.customer)
   directions: CustomerDirection[];
 }

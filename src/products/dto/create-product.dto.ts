@@ -2,10 +2,6 @@ import { IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, MaxLength, M
 
 export class CreateProductDto {
   @IsUUID()
-  @IsNotEmpty()
-  business_id: string;
-
-  @IsUUID()
   @IsOptional()
   branch_id?: string;
 

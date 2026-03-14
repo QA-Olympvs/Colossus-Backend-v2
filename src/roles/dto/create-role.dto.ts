@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
 
 export class CreateRoleDto {
   @IsString()
@@ -9,4 +9,7 @@ export class CreateRoleDto {
   @IsString()
   @IsOptional()
   description?: string;
+
+  @IsOptional()
+  is_system?: boolean;
 }

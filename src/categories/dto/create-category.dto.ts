@@ -3,7 +3,7 @@ import { IsNotEmpty, IsOptional, IsString, IsUUID, MaxLength } from 'class-valid
 export class CreateCategoryDto {
   @IsUUID()
   @IsNotEmpty()
-  business_id: string;
+  branch_id: string;
 
   @IsUUID()
   @IsOptional()
@@ -17,4 +17,7 @@ export class CreateCategoryDto {
   @IsString()
   @IsOptional()
   description?: string;
+
+  @IsOptional()
+  sort_order?: number;
 }

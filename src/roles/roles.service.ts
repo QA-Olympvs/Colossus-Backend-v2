@@ -40,11 +40,11 @@ export class RolesService {
     await this.roleRepository.remove(role);
   }
 
-  async findOrCreate(name: string, description?: string): Promise<Role> {
+  async findOrCreate(name: string, description?: string, isSystem: boolean = false): Promise<Role> {
     let role = await this.roleRepository.findOne({ where: { name } });
     if (!role) {
       role = await this.roleRepository.save(
-        this.roleRepository.create({ name, description }),
+        this.roleRepository.create({ name, description, is_system: isSystem }),
       );
     }
     return role;

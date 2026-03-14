@@ -21,36 +21,30 @@ export class UsersService {
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     const existing = await this.userRepository.findOne({
-      where: { email: createUserDto.email, business_id: createUserDto.business_id },
+      where: { email: createUserDto.email },
     });
-    if (existing) throw new ConflictException('User with this email already exists in this business');
+    if (existing) throw new ConflictException('User with this email already exists');
     const hashed = await bcrypt.hash(createUserDto.password, SALT_ROUNDS);
     const user = this.userRepository.create({ ...createUserDto, password: hashed });
     return this.userRepository.save(user);
   }
 
-  async findAll(businessId?: string): Promise<User[]> {
-    const where: Record<string, unknown> = { is_active: true };
-    if (businessId) where.business_id = businessId;
-    return this.userRepository.find({ where, relations: ['user_roles', 'user_roles.role'] });
+  async findAll(): Promise<User[]> {
+    return this.userRepository.find({ where: { is_active: true }, relations: ['user_roles', 'user_roles.role'] });
   }
 
   async findOne(id: string): Promise<User> {
     const user = await this.userRepository.findOne({
       where: { id },
-      relations: ['business', 'branch', 'user_roles', 'user_roles.role'],
+      relations: ['branch', 'user_roles', 'user_roles.role'],
     });
     if (!user) throw new NotFoundException(`User #${id} not found`);
     return user;
   }
 
-  async countByBusiness(businessId: string): Promise<number> {
-    return this.userRepository.count({ where: { business_id: businessId, is_active: true } });
-  }
-
-  async findByEmail(email: string, businessId: string): Promise<User | null> {
+  async findByEmail(email: string): Promise<User | null> {
     return this.userRepository.findOne({
-      where: { email, business_id: businessId, is_active: true },
+      where: { email, is_active: true },
       relations: ['user_roles', 'user_roles.role', 'user_roles.role.role_permissions', 'user_roles.role.role_permissions.permission'],
     });
   }
