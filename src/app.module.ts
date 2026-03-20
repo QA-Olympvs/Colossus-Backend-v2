@@ -11,6 +11,7 @@ import { PermissionsModule } from './permissions/permissions.module';
 import { CustomersModule } from './customers/customers.module';
 import { CustomerDirectionsModule } from './customer-directions/customer-directions.module';
 import { OrdersModule } from './orders/orders.module';
+import { RoutesModule } from './routes/routes.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { OrdersModule } from './orders/orders.module';
     CustomersModule,
     CustomerDirectionsModule,
     OrdersModule,
+    RoutesModule,
   ],
 })
 export class AppModule {}
