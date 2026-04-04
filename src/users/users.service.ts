@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
@@ -23,20 +27,34 @@ export class UsersService {
     const existing = await this.userRepository.findOne({
       where: { email: createUserDto.email },
     });
-    if (existing) throw new ConflictException('User with this email already exists');
+    if (existing)
+      throw new ConflictException('User with this email already exists');
     const hashed = await bcrypt.hash(createUserDto.password, SALT_ROUNDS);
-    const user = this.userRepository.create({ ...createUserDto, password: hashed });
+    const user = this.userRepository.create({
+      ...createUserDto,
+      password: hashed,
+    });
     return this.userRepository.save(user);
   }
 
   async findAll(): Promise<User[]> {
-    return this.userRepository.find({ where: { is_active: true }, relations: ['user_roles', 'user_roles.role'] });
+    return this.userRepository.find({
+      where: { is_active: true },
+      relations: ['user_roles', 'user_roles.role'],
+    });
   }
 
   async findOne(id: string): Promise<User> {
     const user = await this.userRepository.findOne({
       where: { id },
-      relations: ['branch', 'user_roles', 'user_roles.role'],
+      relations: [
+        'branch',
+        'user_roles',
+        'user_roles.role',
+        'user_roles.role.branch_permissions',
+        'user_roles.role.role_permissions',
+        'user_roles.role.role_permissions.permission',
+      ],
     });
     if (!user) throw new NotFoundException(`User #${id} not found`);
     return user;
@@ -45,14 +63,22 @@ export class UsersService {
   async findByEmail(email: string): Promise<User | null> {
     return this.userRepository.findOne({
       where: { email, is_active: true },
-      relations: ['user_roles', 'user_roles.role', 'user_roles.role.role_permissions', 'user_roles.role.role_permissions.permission'],
+      relations: [
+        'user_roles',
+        'user_roles.role',
+        'user_roles.role.role_permissions',
+        'user_roles.role.role_permissions.permission',
+      ],
     });
   }
 
   async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
     const user = await this.findOne(id);
     if (updateUserDto.password) {
-      updateUserDto.password = await bcrypt.hash(updateUserDto.password, SALT_ROUNDS);
+      updateUserDto.password = await bcrypt.hash(
+        updateUserDto.password,
+        SALT_ROUNDS,
+      );
     }
     Object.assign(user, updateUserDto);
     return this.userRepository.save(user);
@@ -64,12 +90,16 @@ export class UsersService {
     await this.userRepository.save(user);
   }
 
-  async assignRole(userId: string, assignRoleDto: AssignRoleDto): Promise<UserRole> {
+  async assignRole(
+    userId: string,
+    assignRoleDto: AssignRoleDto,
+  ): Promise<UserRole> {
     const user = await this.findOne(userId);
     const existing = await this.userRoleRepository.findOne({
       where: { user: { id: user.id }, role: { id: assignRoleDto.role_id } },
     });
-    if (existing) throw new ConflictException('Role already assigned to this user');
+    if (existing)
+      throw new ConflictException('Role already assigned to this user');
     const userRole = this.userRoleRepository.create({
       user: { id: userId },
       role: { id: assignRoleDto.role_id },
@@ -81,7 +111,8 @@ export class UsersService {
     const userRole = await this.userRoleRepository.findOne({
       where: { user: { id: userId }, role: { id: roleId } },
     });
-    if (!userRole) throw new NotFoundException('Role not assigned to this user');
+    if (!userRole)
+      throw new NotFoundException('Role not assigned to this user');
     await this.userRoleRepository.remove(userRole);
   }
 }

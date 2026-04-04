@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Customer } from './entities/customer.entity';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
@@ -14,6 +15,7 @@ export class CustomersService {
   constructor(
     @InjectRepository(Customer)
     private readonly customerRepository: Repository<Customer>,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   async create(createCustomerDto: CreateCustomerDto): Promise<Customer> {
@@ -30,7 +32,19 @@ export class CustomersService {
     }
 
     const customer = this.customerRepository.create(createCustomerDto);
-    return this.customerRepository.save(customer);
+    const savedCustomer = await this.customerRepository.save(customer);
+
+    this.eventEmitter.emit('customer.created', {
+      customer: {
+        id: savedCustomer.id,
+        first_name: savedCustomer.first_name,
+        last_name: savedCustomer.last_name,
+        email: savedCustomer.email,
+        phone: savedCustomer.phone,
+      },
+    });
+
+    return savedCustomer;
   }
 
   async findAll(userId?: string, isRegistered?: boolean): Promise<Customer[]> {
@@ -76,7 +90,19 @@ export class CustomersService {
     }
 
     Object.assign(customer, updateCustomerDto);
-    return this.customerRepository.save(customer);
+    const savedCustomer = await this.customerRepository.save(customer);
+
+    this.eventEmitter.emit('customer.updated', {
+      customer: {
+        id: savedCustomer.id,
+        first_name: savedCustomer.first_name,
+        last_name: savedCustomer.last_name,
+        email: savedCustomer.email,
+        phone: savedCustomer.phone,
+      },
+    });
+
+    return savedCustomer;
   }
 
   async remove(id: string): Promise<void> {

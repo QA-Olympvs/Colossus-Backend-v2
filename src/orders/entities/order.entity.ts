@@ -85,11 +85,17 @@ export class Order {
   @Column({ nullable: true })
   cancelled_at: Date;
 
+  @Column({ nullable: true })
+  delivered_at: Date;
+
   @CreateDateColumn()
   created_at: Date;
 
   @UpdateDateColumn()
   updated_at: Date;
+
+  @Column({ nullable: true, type: 'text', name: 'delivery_photo_url' })
+  delivery_photo_url: string;
 
   @ManyToOne(() => Branch, { nullable: false })
   @JoinColumn({ name: 'branch_id' })

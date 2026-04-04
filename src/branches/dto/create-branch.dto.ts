@@ -1,4 +1,14 @@
-import { IsBoolean, IsEmail, IsNotEmpty, IsNumber, IsOptional, IsString, Matches, MaxLength, Min } from 'class-validator';
+import {
+  IsBoolean,
+  IsEmail,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Matches,
+  MaxLength,
+  Min,
+} from 'class-validator';
 
 export class CreateBranchDto {
   @IsString()
@@ -30,7 +40,9 @@ export class CreateBranchDto {
   @IsString()
   @IsOptional()
   @MaxLength(13)
-  @Matches(/^[A-ZÑ&]{3,4}[0-9]{6}[A-Z0-9]{3}$/, { message: 'RFC format is invalid' })
+  @Matches(/^[A-ZÑ&]{3,4}[0-9]{6}[A-Z0-9]{3}$/, {
+    message: 'RFC format is invalid',
+  })
   rfc?: string;
 
   @IsBoolean()
@@ -59,4 +71,8 @@ export class CreateBranchDto {
   @IsOptional()
   @Min(0)
   delivery_radius_km?: number;
+
+  @IsBoolean()
+  @IsOptional()
+  requires_delivery_photo?: boolean;
 }

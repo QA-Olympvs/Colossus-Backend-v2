@@ -1,4 +1,14 @@
-import { IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, MaxLength, Min } from 'class-validator';
+import { Transform } from 'class-transformer';
+import {
+  IsInt,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsUUID,
+  MaxLength,
+  Min,
+} from 'class-validator';
 
 export class CreateProductDto {
   @IsUUID()
@@ -26,11 +36,17 @@ export class CreateProductDto {
   @IsNumber({ maxDecimalPlaces: 2 })
   @IsNotEmpty()
   @Min(0)
+  @Transform(({ value }) =>
+    typeof value === 'string' ? parseFloat(value) : value,
+  )
   price: number;
 
   @IsInt()
   @IsOptional()
   @Min(0)
+  @Transform(({ value }) =>
+    typeof value === 'string' ? parseInt(value, 10) : value,
+  )
   stock?: number;
 
   @IsString()

@@ -24,11 +24,13 @@ export class CreateOrderItemDto {
 
   @IsNumber()
   @Min(0)
+  @Type(() => Number)
   unit_price: number;
 
   @IsNumber()
   @IsOptional()
   @Min(0)
+  @Type(() => Number)
   discount_amount?: number;
 
   @IsString()
@@ -64,16 +66,19 @@ export class CreateOrderDto {
   @IsNumber()
   @IsOptional()
   @Min(0)
+  @Type(() => Number)
   discount_amount?: number;
 
   @IsNumber()
   @IsOptional()
   @Min(0)
+  @Type(() => Number)
   tax_amount?: number;
 
   @IsNumber()
   @IsOptional()
   @Min(0)
+  @Type(() => Number)
   delivery_fee?: number;
 
   @IsArray()

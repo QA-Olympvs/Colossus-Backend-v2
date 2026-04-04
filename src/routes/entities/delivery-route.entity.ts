@@ -8,7 +8,6 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Business } from '../../business/entities/business.entity';
 import { User } from '../../users/entities/user.entity';
 import { RouteStop } from './route-stop.entity';
 
@@ -50,10 +49,6 @@ export class DeliveryRoute {
 
   @UpdateDateColumn()
   updated_at: Date;
-
-  @ManyToOne(() => Business)
-  @JoinColumn({ name: 'business_id' })
-  business: Business;
 
   @ManyToOne(() => User, { nullable: true })
   @JoinColumn({ name: 'assigned_user_id' })

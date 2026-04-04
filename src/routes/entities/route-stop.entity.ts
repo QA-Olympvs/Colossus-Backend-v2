@@ -9,6 +9,7 @@ import {
 } from 'typeorm';
 import { DeliveryRoute } from './delivery-route.entity';
 import { CustomerDirection } from '../../customer-directions/entities/customer-direction.entity';
+import { Order } from '../../orders/entities/order.entity';
 
 @Entity('route_stops')
 export class RouteStop {
@@ -21,9 +22,8 @@ export class RouteStop {
   @Column({ nullable: true })
   customer_direction_id: string;
 
-  // TODO: Uncomment when orders module is implemented
-  // @Column({ nullable: true })
-  // order_id: string;
+  @Column({ nullable: true })
+  order_id: string;
 
   @Column({ type: 'int' })
   stop_order: number;
@@ -66,8 +66,7 @@ export class RouteStop {
   @JoinColumn({ name: 'customer_direction_id' })
   customer_direction: CustomerDirection;
 
-  // TODO: Uncomment when orders module is implemented
-  // @ManyToOne(() => Order, { nullable: true })
-  // @JoinColumn({ name: 'order_id' })
-  // order: Order;
+  @ManyToOne(() => Order, { nullable: true })
+  @JoinColumn({ name: 'order_id' })
+  order: Order;
 }

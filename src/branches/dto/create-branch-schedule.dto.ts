@@ -6,11 +6,15 @@ export class CreateBranchScheduleDto {
   day_of_week: DayOfWeek;
 
   @IsOptional()
-  @Matches(/^([01]\d|2[0-3]):([0-5]\d)$/, { message: 'open_time must be HH:MM format' })
+  @Matches(/^([01]\d|2[0-3]):([0-5]\d)$/, {
+    message: 'open_time must be HH:MM format',
+  })
   open_time?: string;
 
   @IsOptional()
-  @Matches(/^([01]\d|2[0-3]):([0-5]\d)$/, { message: 'close_time must be HH:MM format' })
+  @Matches(/^([01]\d|2[0-3]):([0-5]\d)$/, {
+    message: 'close_time must be HH:MM format',
+  })
   close_time?: string;
 
   @IsBoolean()

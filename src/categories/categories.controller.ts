@@ -1,4 +1,14 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
@@ -10,20 +20,13 @@ export class CategoriesController {
 
   @Post()
   @UseGuards(JwtAuthGuard)
-  create(@Body() createCategoryDto: CreateCategoryDto, @Req() req: any) {
-    const user = req.user || {};
-    // Asignar automáticamente el branch_id del usuario
-    createCategoryDto.branch_id = user.branch_id;
+  create(@Body() createCategoryDto: CreateCategoryDto) {
     return this.categoriesService.create(createCategoryDto);
   }
 
   @Get()
-  @UseGuards(JwtAuthGuard)
-  findAll(@Req() req: any, @Query('branchId') branchId?: string) {
-    const user = req.user || {};
-    // Si el usuario tiene branch_id, solo puede ver categorías de su sucursal
-    const effectiveBranchId = user.branch_id || branchId;
-    return this.categoriesService.findAll(effectiveBranchId);
+  findAll(@Query('branchId') branchId?: string) {
+    return this.categoriesService.findAll(branchId);
   }
 
   @Get(':id')
@@ -32,7 +35,10 @@ export class CategoriesController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCategoryDto: UpdateCategoryDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateCategoryDto: UpdateCategoryDto,
+  ) {
     return this.categoriesService.update(id, updateCategoryDto);
   }
 
@@ -43,7 +49,9 @@ export class CategoriesController {
 
   @Patch('reorder')
   @UseGuards(JwtAuthGuard)
-  async reorderCategories(@Body() reorderDto: { categories: { id: string; sort_order: number }[] }) {
+  async reorderCategories(
+    @Body() reorderDto: { categories: { id: string; sort_order: number }[] },
+  ) {
     return this.categoriesService.reorderCategories(reorderDto.categories);
   }
 }

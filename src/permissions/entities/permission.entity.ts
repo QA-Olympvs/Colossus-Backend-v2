@@ -20,6 +20,7 @@ export enum PermissionResource {
   CUSTOMERS = 'customers',
   CUSTOMER_DIRECTIONS = 'customer_directions',
   PERMISSIONS = 'permissions',
+  MODULES = 'modules',
 }
 
 @Entity('permissions')

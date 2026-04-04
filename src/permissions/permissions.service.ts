@@ -1,7 +1,15 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Permission, PermissionAction, PermissionResource } from './entities/permission.entity';
+import {
+  Permission,
+  PermissionAction,
+  PermissionResource,
+} from './entities/permission.entity';
 import { RolePermission } from './entities/role-permission.entity';
 import { BranchPermission } from './entities/branch-permission.entity';
 import { CreatePermissionDto } from './dto/create-permission.dto';
@@ -21,9 +29,15 @@ export class PermissionsService {
 
   async create(createPermissionDto: CreatePermissionDto): Promise<Permission> {
     const existing = await this.permissionRepository.findOne({
-      where: { action: createPermissionDto.action, resource: createPermissionDto.resource },
+      where: {
+        action: createPermissionDto.action,
+        resource: createPermissionDto.resource,
+      },
     });
-    if (existing) throw new ConflictException(`Permission '${createPermissionDto.resource}:${createPermissionDto.action}' already exists`);
+    if (existing)
+      throw new ConflictException(
+        `Permission '${createPermissionDto.resource}:${createPermissionDto.action}' already exists`,
+      );
     const permission = this.permissionRepository.create(createPermissionDto);
     return this.permissionRepository.save(permission);
   }
@@ -33,12 +47,17 @@ export class PermissionsService {
   }
 
   async findOne(id: string): Promise<Permission> {
-    const permission = await this.permissionRepository.findOne({ where: { id } });
+    const permission = await this.permissionRepository.findOne({
+      where: { id },
+    });
     if (!permission) throw new NotFoundException(`Permission #${id} not found`);
     return permission;
   }
 
-  async update(id: string, updatePermissionDto: UpdatePermissionDto): Promise<Permission> {
+  async update(
+    id: string,
+    updatePermissionDto: UpdatePermissionDto,
+  ): Promise<Permission> {
     const permission = await this.findOne(id);
     Object.assign(permission, updatePermissionDto);
     return this.permissionRepository.save(permission);
@@ -49,12 +68,16 @@ export class PermissionsService {
     await this.permissionRepository.remove(permission);
   }
 
-  async assignToRole(roleId: string, assignPermissionDto: AssignPermissionDto): Promise<RolePermission> {
+  async assignToRole(
+    roleId: string,
+    assignPermissionDto: AssignPermissionDto,
+  ): Promise<RolePermission> {
     const permission = await this.findOne(assignPermissionDto.permission_id);
     const existing = await this.rolePermissionRepository.findOne({
       where: { role: { id: roleId }, permission: { id: permission.id } },
     });
-    if (existing) throw new ConflictException('Permission already assigned to this role');
+    if (existing)
+      throw new ConflictException('Permission already assigned to this role');
     const rolePermission = this.rolePermissionRepository.create({
       role: { id: roleId },
       permission: { id: assignPermissionDto.permission_id },
@@ -66,7 +89,8 @@ export class PermissionsService {
     const rp = await this.rolePermissionRepository.findOne({
       where: { role: { id: roleId }, permission: { id: permissionId } },
     });
-    if (!rp) throw new NotFoundException('Permission not assigned to this role');
+    if (!rp)
+      throw new NotFoundException('Permission not assigned to this role');
     await this.rolePermissionRepository.remove(rp);
   }
 
@@ -84,7 +108,9 @@ export class PermissionsService {
     const permissions: Permission[] = [];
     for (const resource of resources) {
       for (const action of actions) {
-        let permission = await this.permissionRepository.findOne({ where: { action, resource } });
+        let permission = await this.permissionRepository.findOne({
+          where: { action, resource },
+        });
         if (!permission) {
           permission = await this.permissionRepository.save(
             this.permissionRepository.create({ action, resource }),
@@ -103,7 +129,7 @@ export class PermissionsService {
         where: { action: PermissionAction.MANAGE, resource },
       });
       if (!permission) continue;
-      
+
       const existing = await this.rolePermissionRepository.findOne({
         where: { role: { id: roleId }, permission: { id: permission.id } },
       });
@@ -118,16 +144,23 @@ export class PermissionsService {
     }
   }
 
-  async assignManagePermissionsToRoleForBranch(roleId: string, branchId: string): Promise<void> {
+  async assignManagePermissionsToRoleForBranch(
+    roleId: string,
+    branchId: string,
+  ): Promise<void> {
     const resources = Object.values(PermissionResource);
     for (const resource of resources) {
       const permission = await this.permissionRepository.findOne({
         where: { action: PermissionAction.MANAGE, resource },
       });
       if (!permission) continue;
-      
+
       const existing = await this.branchPermissionRepository.findOne({
-        where: { role: { id: roleId }, permission: { id: permission.id }, branch: { id: branchId } },
+        where: {
+          role: { id: roleId },
+          permission: { id: permission.id },
+          branch: { id: branchId },
+        },
       });
       if (!existing) {
         await this.branchPermissionRepository.save(
@@ -141,7 +174,10 @@ export class PermissionsService {
     }
   }
 
-  async getPermissionsForRoleInBranch(roleId: string, branchId: string): Promise<Permission[]> {
+  async getPermissionsForRoleInBranch(
+    roleId: string,
+    branchId: string,
+  ): Promise<Permission[]> {
     const branchPermissions = await this.branchPermissionRepository.find({
       where: { role: { id: roleId }, branch: { id: branchId } },
       relations: ['permission'],

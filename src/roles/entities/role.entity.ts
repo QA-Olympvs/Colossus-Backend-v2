@@ -2,6 +2,7 @@ import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { UserRole } from '../../users/entities/user-role.entity';
 import { RolePermission } from '../../permissions/entities/role-permission.entity';
 import { BranchPermission } from '../../permissions/entities/branch-permission.entity';
+import { RoleModule } from '../../modules/entities/role-module.entity';
 
 @Entity('roles')
 export class Role {
@@ -25,4 +26,7 @@ export class Role {
 
   @OneToMany(() => BranchPermission, (bp) => bp.role)
   branch_permissions: BranchPermission[];
+
+  @OneToMany(() => RoleModule, (rm) => rm.role)
+  role_modules: RoleModule[];
 }
