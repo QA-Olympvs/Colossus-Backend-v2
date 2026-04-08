@@ -8,9 +8,9 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Business } from '../../business/entities/business.entity';
 import { User } from '../../users/entities/user.entity';
 import { RouteStop } from './route-stop.entity';
+import { Branch } from '../../branches/entities/branch.entity';
 
 @Entity('delivery_routes')
 export class DeliveryRoute {
@@ -18,7 +18,7 @@ export class DeliveryRoute {
   id: string;
 
   @Column()
-  business_id: string;
+  branch_id: string;
 
   @Column({ nullable: true })
   assigned_user_id: string;
@@ -51,9 +51,9 @@ export class DeliveryRoute {
   @UpdateDateColumn()
   updated_at: Date;
 
-  @ManyToOne(() => Business)
-  @JoinColumn({ name: 'business_id' })
-  business: Business;
+  @ManyToOne(() => Branch)
+  @JoinColumn({ name: 'branch_id' })
+  branch: Branch;
 
   @ManyToOne(() => User, { nullable: true })
   @JoinColumn({ name: 'assigned_user_id' })
