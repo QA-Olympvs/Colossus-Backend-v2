@@ -2,11 +2,11 @@
 @branchId = a5664473-a72c-426b-8162-72de03b573a5
 @userId = 
 @roleId = 
-@categoryId = 
+@categoryId = 9ad65e65-e8e6-481e-98f1-0b73f9585019
 @productId = 
 @customerId = 
 @orderId = 
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyOGRhZDU2Yy0zMzQzLTQwODktOGQ3Yi00ZjBjOTA1YWJmZjAiLCJlbWFpbCI6ImFkbWluQG1pdGllbmRhLmNvbSIsImJyYW5jaF9pZCI6ImE1NjY0NDczLWE3MmMtNDI2Yi04MTYyLTcyZGUwM2I1NzNhNSIsInJvbGVzIjpbIkFETUlOIl0sInBlcm1pc3Npb25zIjpbXSwiaWF0IjoxNzczNDY0OTEzLCJleHAiOjE3NzQwNjk3MTN9.dOhuarJWGFE3OCSQQhU9n1NQv00BLvhn0L2p0MdQ7zA
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyOGRhZDU2Yy0zMzQzLTQwODktOGQ3Yi00ZjBjOTA1YWJmZjAiLCJlbWFpbCI6ImFkbWluQG1pdGllbmRhLmNvbSIsImJyYW5jaF9pZCI6ImE1NjY0NDczLWE3MmMtNDI2Yi04MTYyLTcyZGUwM2I1NzNhNSIsInJvbGVzIjpbIkFETUlOIl0sInBlcm1pc3Npb25zIjpbXSwiaWF0IjoxNzc0MDQ4NDc5LCJleHAiOjE3NzQ2NTMyNzl9.Z4qsnQoLfrqp5PkBQ6BzeOu5rg09Wrke0w093DGNCe0
 
 ### ============================================================
 ### AUTH
@@ -51,6 +51,18 @@ Authorization: Bearer {{token}}
 
 ###
 
+### Obtener todos los permisos disponibles
+GET {{baseUrl}}/permissions
+Authorization: Bearer {{token}}
+
+###
+
+### Obtener todos los roles
+GET {{baseUrl}}/roles
+Authorization: Bearer {{token}}
+
+###
+
 ### Asignar permiso a un rol
 POST {{baseUrl}}/permissions/roles/{{roleId}}/assign
 Authorization: Bearer {{token}}
@@ -65,6 +77,39 @@ Content-Type: application/json
 ### Ver permisos de un rol
 GET {{baseUrl}}/permissions/roles/{{roleId}}
 Authorization: Bearer {{token}}
+
+###
+
+### Ejemplo: Asignar permiso de crear productos al rol MANAGER
+POST {{baseUrl}}/permissions/roles/{{roleId}}/assign
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "permission_id": "products:create"
+}
+
+###
+
+### Ejemplo: Asignar permiso de leer categorías al rol EMPLOYEE
+POST {{baseUrl}}/permissions/roles/{{roleId}}/assign
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "permission_id": "categories:read"
+}
+
+###
+
+### Ejemplo: Asignar permiso de gestionar usuarios al rol ADMIN
+POST {{baseUrl}}/permissions/roles/{{roleId}}/assign
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "permission_id": "users:manage"
+}
 
 ###
 
@@ -300,6 +345,7 @@ DELETE {{baseUrl}}/users/{{userId}}
 
 ### Crear una categoría raíz
 POST {{baseUrl}}/categories
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -312,9 +358,11 @@ Content-Type: application/json
 
 ### Crear una subcategoría
 POST {{baseUrl}}/categories
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
+  "branch_id": "{{branchId}}",
   "parent_id": "{{categoryId}}",
   "name": "Smartphones",
   "description": "Teléfonos inteligentes"
@@ -324,6 +372,7 @@ Content-Type: application/json
 
 ### Obtener todas las categorías
 GET {{baseUrl}}/categories
+Authorization: Bearer {{token}}
 
 ###
 
@@ -331,6 +380,7 @@ GET {{baseUrl}}/categories
 
 ### Obtener una categoría por ID
 GET {{baseUrl}}/categories/{{categoryId}}
+Authorization: Bearer {{token}}
 
 ###
 

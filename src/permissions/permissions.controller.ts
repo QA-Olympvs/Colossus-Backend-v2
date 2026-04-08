@@ -74,7 +74,8 @@ export class PermissionsController {
 
   @Permissions('roles:read')
   @Get('roles/:roleId')
-  getPermissionsForRole(@Param('roleId') roleId: string) {
-    return this.permissionsService.getPermissionsForRole(roleId);
+  getPermissionsForRole(@Param('roleId') roleId: string, @Req() req: any) {
+    const branchId: string = req.user.branch_id as string;
+    return this.permissionsService.getPermissionsForRole(roleId, branchId);
   }
 }
