@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { PermissionsService } from './permissions.service';
@@ -76,6 +77,9 @@ export class PermissionsController {
   @Get('roles/:roleId')
   getPermissionsForRole(@Param('roleId') roleId: string, @Req() req: any) {
     const branchId: string = req.user.branch_id as string;
-    return this.permissionsService.getPermissionsForRole(roleId, branchId);
+    return this.permissionsService.getPermissionsForRoleInBranch(
+      roleId,
+      branchId,
+    );
   }
 }
