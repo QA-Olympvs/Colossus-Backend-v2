@@ -46,6 +46,9 @@ export class Customer {
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @OneToMany(() => CustomerDirection, (customerDirection) => customerDirection.customer)
+  @OneToMany(
+    () => CustomerDirection,
+    (customerDirection) => customerDirection.customer,
+  )
   directions: CustomerDirection[];
 }

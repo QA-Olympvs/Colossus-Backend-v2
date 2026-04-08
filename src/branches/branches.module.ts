@@ -6,10 +6,11 @@ import { BranchesService } from './branches.service';
 import { BranchesController } from './branches.controller';
 import { UsersModule } from '../users/users.module';
 import { PermissionsModule } from '../permissions/permissions.module';
+import { Order } from '../orders/entities/order.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Branch, BranchSchedule]),
+    TypeOrmModule.forFeature([Branch, BranchSchedule, Order]),
     UsersModule,
     PermissionsModule,
   ],

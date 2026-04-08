@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { RolePermission } from './role-permission.entity';
 
 export enum PermissionAction {
   CREATE = 'create',
@@ -19,6 +20,7 @@ export enum PermissionResource {
   CUSTOMERS = 'customers',
   CUSTOMER_DIRECTIONS = 'customer_directions',
   PERMISSIONS = 'permissions',
+  MODULES = 'modules',
 }
 
 @Entity('permissions')
@@ -34,6 +36,9 @@ export class Permission {
 
   @Column({ nullable: true, type: 'text' })
   description: string;
+
+  @OneToMany(() => RolePermission, (rp) => rp.permission)
+  role_permissions: RolePermission[];
 
   get key(): string {
     return `${this.resource}:${this.action}`;

@@ -1,6 +1,11 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Order, OrderStatus } from './entities/order.entity';
 import { OrderItem } from './entities/order-item.entity';
 import { Payment, PaymentStatus } from './entities/payment.entity';
@@ -17,6 +22,7 @@ export class OrdersService {
     private readonly orderItemRepository: Repository<OrderItem>,
     @InjectRepository(Payment)
     private readonly paymentRepository: Repository<Payment>,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   private generateOrderNumber(): string {
@@ -25,9 +31,12 @@ export class OrdersService {
     return `ORD-${timestamp}-${random}`;
   }
 
-  private calculateTotals(items: { unit_price: number; quantity: number; discount_amount?: number }[]) {
+  private calculateTotals(
+    items: { unit_price: number; quantity: number; discount_amount?: number }[],
+  ) {
     const subtotal = items.reduce((sum, item) => {
-      const itemSubtotal = item.unit_price * item.quantity - (item.discount_amount ?? 0);
+      const itemSubtotal =
+        item.unit_price * item.quantity - (item.discount_amount ?? 0);
       return sum + itemSubtotal;
     }, 0);
     return parseFloat(subtotal.toFixed(2));
@@ -42,7 +51,9 @@ export class OrdersService {
     const discountAmount = dto.discount_amount ?? 0;
     const taxAmount = dto.tax_amount ?? 0;
     const deliveryFee = dto.delivery_fee ?? 0;
-    const total = parseFloat((subtotal - discountAmount + taxAmount + deliveryFee).toFixed(2));
+    const total = parseFloat(
+      (subtotal - discountAmount + taxAmount + deliveryFee).toFixed(2),
+    );
 
     const order = this.orderRepository.create({
       ...dto,
@@ -63,19 +74,45 @@ export class OrdersService {
         unit_price: item.unit_price,
         quantity: item.quantity,
         discount_amount: item.discount_amount ?? 0,
-        subtotal: parseFloat((item.unit_price * item.quantity - (item.discount_amount ?? 0)).toFixed(2)),
+        subtotal: parseFloat(
+          (
+            item.unit_price * item.quantity -
+            (item.discount_amount ?? 0)
+          ).toFixed(2),
+        ),
         notes: item.notes,
       }),
     );
 
     await this.orderItemRepository.save(orderItems);
 
-    return this.findOne(savedOrder.id);
+    const fullOrder = await this.findOne(savedOrder.id);
+
+    this.eventEmitter.emit('order.created', {
+      branchId: fullOrder.branch_id,
+      order: {
+        id: fullOrder.id,
+        order_number: fullOrder.order_number,
+        branch_id: fullOrder.branch_id,
+        status: fullOrder.status,
+        total: fullOrder.total,
+        customer_id: fullOrder.customer_id,
+        user_id: fullOrder.user_id,
+        type: fullOrder.type,
+        created_at: fullOrder.created_at,
+      },
+    });
+
+    return fullOrder;
   }
 
-  async findAll(userBranchId?: string, branchId?: string, status?: OrderStatus): Promise<Order[]> {
+  async findAll(
+    userBranchId?: string,
+    branchId?: string,
+    status?: OrderStatus,
+  ): Promise<Order[]> {
     const where: Record<string, unknown> = { is_archived: false };
-    
+
     // Si el usuario tiene branch_id, solo puede ver órdenes de su sucursal
     if (userBranchId) {
       where.branch_id = userBranchId;
@@ -83,11 +120,11 @@ export class OrdersService {
       // Usuario global puede filtrar por branch_id específico
       where.branch_id = branchId;
     }
-    
+
     if (status) where.status = status;
     return this.orderRepository.find({
       where,
-      relations: ['items', 'items.product', 'payments', 'customer'],
+      relations: ['items', 'items.product', 'payments', 'customer', 'branch'],
       order: { created_at: 'DESC' },
     });
   }
@@ -95,7 +132,15 @@ export class OrdersService {
   async findOne(id: string): Promise<Order> {
     const order = await this.orderRepository.findOne({
       where: { id },
-      relations: ['items', 'items.product', 'payments', 'customer', 'branch', 'user', 'delivery_address'],
+      relations: [
+        'items',
+        'items.product',
+        'payments',
+        'customer',
+        'branch',
+        'user',
+        'delivery_address',
+      ],
     });
     if (!order) throw new NotFoundException(`Order #${id} not found`);
     return order;
@@ -118,6 +163,8 @@ export class OrdersService {
       throw new BadRequestException(`Cannot update a ${order.status} order`);
     }
 
+    const previousStatus = order.status;
+
     order.status = dto.status;
 
     if (dto.status === OrderStatus.CANCELLED) {
@@ -125,14 +172,34 @@ export class OrdersService {
       order.cancelled_at = new Date();
     }
 
-    return this.orderRepository.save(order);
+    if (dto.status === OrderStatus.DELIVERED) {
+      order.delivered_at = new Date();
+    }
+
+    const savedOrder = await this.orderRepository.save(order);
+
+    this.eventEmitter.emit('order.status_changed', {
+      branchId: savedOrder.branch_id,
+      orderId: savedOrder.id,
+      previousStatus,
+      newStatus: savedOrder.status,
+      assignedUserId: savedOrder.user_id,
+    });
+
+    return savedOrder;
   }
 
   async archive(id: string): Promise<Order> {
     const order = await this.findOne(id);
-    const closedStatuses = [OrderStatus.DELIVERED, OrderStatus.CANCELLED, OrderStatus.REFUNDED];
+    const closedStatuses = [
+      OrderStatus.DELIVERED,
+      OrderStatus.CANCELLED,
+      OrderStatus.REFUNDED,
+    ];
     if (!closedStatuses.includes(order.status)) {
-      throw new BadRequestException('Only delivered, cancelled or refunded orders can be archived');
+      throw new BadRequestException(
+        'Only delivered, cancelled or refunded orders can be archived',
+      );
     }
     order.is_archived = true;
     return this.orderRepository.save(order);
@@ -158,7 +225,21 @@ export class OrdersService {
       paid_at: new Date(),
     });
 
-    return this.paymentRepository.save(payment);
+    const savedPayment = await this.paymentRepository.save(payment);
+
+    this.eventEmitter.emit('order.payment_received', {
+      branchId: order.branch_id,
+      payment: {
+        id: savedPayment.id,
+        order_id: orderId,
+        amount: savedPayment.amount,
+        method: savedPayment.method,
+        status: savedPayment.status,
+        paid_at: savedPayment.paid_at,
+      },
+    });
+
+    return savedPayment;
   }
 
   async findPayments(orderId: string): Promise<Payment[]> {

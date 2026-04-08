@@ -1,4 +1,13 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { Product } from '../../products/entities/product.entity';
 import { Branch } from '../../branches/entities/branch.entity';
 
@@ -31,7 +40,9 @@ export class Category {
   @UpdateDateColumn()
   updated_at: Date;
 
-  @ManyToOne(() => Category, (category) => category.children, { nullable: true })
+  @ManyToOne(() => Category, (category) => category.children, {
+    nullable: true,
+  })
   @JoinColumn({ name: 'parent_id' })
   parent: Category;
 

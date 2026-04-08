@@ -1,4 +1,11 @@
-import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { Product } from '../../products/entities/product.entity';
 import { BranchSchedule } from './branch-schedule.entity';
@@ -46,6 +53,9 @@ export class Branch {
 
   @Column({ nullable: true, type: 'decimal', precision: 10, scale: 2 })
   delivery_radius_km: number;
+
+  @Column({ default: false, name: 'requires_delivery_photo' })
+  requires_delivery_photo: boolean;
 
   @Column({ default: true })
   is_active: boolean;

@@ -24,4 +24,10 @@ export class AuthController {
   profile(@CurrentUser() user: unknown) {
     return user;
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('me')
+  async getMe(@CurrentUser() user: { id: string }) {
+    return this.authService.getProfile(user.id);
+  }
 }

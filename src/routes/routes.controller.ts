@@ -7,12 +7,16 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { RoutesService } from './routes.service';
 import { CreateRouteDto } from './dto/create-route.dto';
 import { UpdateRouteDto } from './dto/update-route.dto';
 import { UpdateRouteStatusDto } from './dto/update-route-status.dto';
 import { UpdateStopStatusDto } from './dto/update-stop-status.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { ModuleAccessGuard } from '../auth/guards/module-access.guard';
+import { HasModuleAccess } from '../auth/decorators/has-module-access.decorator';
 
 @Controller('routes')
 export class RoutesController {
@@ -39,6 +43,8 @@ export class RoutesController {
   }
 
   @Patch(':id')
+  @UseGuards(JwtAuthGuard, ModuleAccessGuard)
+  @HasModuleAccess('delivery-routes')
   update(@Param('id') id: string, @Body() updateRouteDto: UpdateRouteDto) {
     return this.routesService.update(id, updateRouteDto);
   }
@@ -57,11 +63,7 @@ export class RoutesController {
     @Param('stopId') stopId: string,
     @Body() updateStopStatusDto: UpdateStopStatusDto,
   ) {
-    return this.routesService.updateStopStatus(
-      id,
-      stopId,
-      updateStopStatusDto.status,
-    );
+    return this.routesService.updateStopStatus(id, stopId, updateStopStatusDto);
   }
 
   @Delete(':id')
