@@ -608,3 +608,158 @@ Content-Type: application/json
 }
 
 ###
+
+### ============================================================
+### ROUTES (DELIVERY ROUTES)
+### ============================================================
+
+@routeId = REPLACE_WITH_ROUTE_ID
+@stopId = REPLACE_WITH_STOP_ID
+
+### Crear una ruta de entrega
+POST {{baseUrl}}/routes
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "business_id": "{{businessId}}",
+  "assigned_user_id": "{{userId}}",
+  "name": "Ruta Zona Norte",
+  "color": "#3B82F6",
+  "notes": "Entregas sector norte AM",
+  "stops": [
+    {
+      "stop_order": 1,
+      "address": "6a Avenida 12-34, Zona 1, Guatemala",
+      "latitude": 14.6407,
+      "longitude": -90.5133
+    },
+    {
+      "stop_order": 2,
+      "address": "Calzada Roosevelt 25-50, Zona 11, Guatemala",
+      "latitude": 14.6231,
+      "longitude": -90.5561
+    },
+    {
+      "stop_order": 3,
+      "address": "Boulevard Los Próceres 18-20, Zona 10, Guatemala",
+      "latitude": 14.5896,
+      "longitude": -90.5280
+    }
+  ]
+}
+
+###
+
+### Crear una ruta sin repartidor asignado
+POST {{baseUrl}}/routes
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "business_id": "{{businessId}}",
+  "name": "Ruta Zona Sur",
+  "color": "#EF4444",
+  "stops": [
+    {
+      "stop_order": 1,
+      "address": "Avenida Petapa 32-10, Zona 12, Guatemala",
+      "latitude": 14.5780,
+      "longitude": -90.5350
+    },
+    {
+      "stop_order": 2,
+      "address": "Villa Nueva Centro, Guatemala",
+      "latitude": 14.5259,
+      "longitude": -90.5873
+    }
+  ]
+}
+
+###
+
+### Obtener todas las rutas
+GET {{baseUrl}}/routes
+Authorization: Bearer {{token}}
+
+###
+
+### Obtener rutas de un negocio
+GET {{baseUrl}}/routes?businessId={{businessId}}
+Authorization: Bearer {{token}}
+
+###
+
+### Obtener rutas asignadas a un repartidor
+GET {{baseUrl}}/routes/delivery-user/{{userId}}
+Authorization: Bearer {{token}}
+
+###
+
+### Obtener una ruta por ID
+GET {{baseUrl}}/routes/{{routeId}}
+Authorization: Bearer {{token}}
+
+###
+
+### Actualizar una ruta
+PATCH {{baseUrl}}/routes/{{routeId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Ruta Zona Norte - Actualizada",
+  "notes": "Horario modificado: entregas PM"
+}
+
+###
+
+### Actualizar estado de una ruta (iniciar)
+PATCH {{baseUrl}}/routes/{{routeId}}/status
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": "in_progress"
+}
+
+###
+
+### Actualizar estado de una ruta (completar)
+PATCH {{baseUrl}}/routes/{{routeId}}/status
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": "completed"
+}
+
+###
+
+### Actualizar estado de una parada (completar)
+PATCH {{baseUrl}}/routes/{{routeId}}/stops/{{stopId}}/status
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": "completed"
+}
+
+###
+
+### Actualizar estado de una parada (omitir)
+PATCH {{baseUrl}}/routes/{{routeId}}/stops/{{stopId}}/status
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": "skipped"
+}
+
+###
+
+### Eliminar una ruta
+DELETE {{baseUrl}}/routes/{{routeId}}
+Authorization: Bearer {{token}}
+
+###
