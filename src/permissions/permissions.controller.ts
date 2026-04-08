@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards, Req, BadRequestException } from '@nestjs/common';
 import { PermissionsService } from './permissions.service';
 import { CreatePermissionDto } from './dto/create-permission.dto';
 import { UpdatePermissionDto } from './dto/update-permission.dto';
@@ -44,19 +44,28 @@ export class PermissionsController {
 
   @Permissions('roles:update')
   @Post('roles/:roleId/assign')
-  assignToRole(@Param('roleId') roleId: string, @Body() assignPermissionDto: AssignPermissionDto) {
-    return this.permissionsService.assignToRole(roleId, assignPermissionDto);
+  assignToRole(@Param('roleId') roleId: string, @Body() assignPermissionDto: AssignPermissionDto, @Req() req: any) {
+    const branchId = req.user.branch_id;
+    if (!branchId) {
+      throw new BadRequestException('User must have a branch assigned');
+    }
+    return this.permissionsService.assignToRole(roleId, assignPermissionDto, branchId);
   }
 
   @Permissions('roles:update')
   @Delete('roles/:roleId/permissions/:permissionId')
-  removeFromRole(@Param('roleId') roleId: string, @Param('permissionId') permissionId: string) {
-    return this.permissionsService.removeFromRole(roleId, permissionId);
+  removeFromRole(@Param('roleId') roleId: string, @Param('permissionId') permissionId: string, @Req() req: any) {
+    const branchId = req.user.branch_id;
+    if (!branchId) {
+      throw new BadRequestException('User must have a branch assigned');
+    }
+    return this.permissionsService.removeFromRole(roleId, permissionId, branchId);
   }
 
   @Permissions('roles:read')
   @Get('roles/:roleId')
-  getPermissionsForRole(@Param('roleId') roleId: string) {
-    return this.permissionsService.getPermissionsForRole(roleId);
+  getPermissionsForRole(@Param('roleId') roleId: string, @Req() req: any) {
+    const branchId = req.user.branch_id;
+    return this.permissionsService.getPermissionsForRole(roleId, branchId);
   }
 }

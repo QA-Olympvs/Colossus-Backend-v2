@@ -2,7 +2,6 @@ import { Injectable, NotFoundException, ConflictException } from '@nestjs/common
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Permission, PermissionAction, PermissionResource } from './entities/permission.entity';
-import { RolePermission } from './entities/role-permission.entity';
 import { BranchPermission } from './entities/branch-permission.entity';
 import { CreatePermissionDto } from './dto/create-permission.dto';
 import { UpdatePermissionDto } from './dto/update-permission.dto';
@@ -13,8 +12,6 @@ export class PermissionsService {
   constructor(
     @InjectRepository(Permission)
     private readonly permissionRepository: Repository<Permission>,
-    @InjectRepository(RolePermission)
-    private readonly rolePermissionRepository: Repository<RolePermission>,
     @InjectRepository(BranchPermission)
     private readonly branchPermissionRepository: Repository<BranchPermission>,
   ) {}
@@ -49,33 +46,37 @@ export class PermissionsService {
     await this.permissionRepository.remove(permission);
   }
 
-  async assignToRole(roleId: string, assignPermissionDto: AssignPermissionDto): Promise<RolePermission> {
+  async assignToRole(roleId: string, assignPermissionDto: AssignPermissionDto, branchId: string): Promise<BranchPermission> {
     const permission = await this.findOne(assignPermissionDto.permission_id);
-    const existing = await this.rolePermissionRepository.findOne({
-      where: { role: { id: roleId }, permission: { id: permission.id } },
+    const existing = await this.branchPermissionRepository.findOne({
+      where: { role: { id: roleId }, permission: { id: permission.id }, branch: { id: branchId } },
     });
-    if (existing) throw new ConflictException('Permission already assigned to this role');
-    const rolePermission = this.rolePermissionRepository.create({
+    if (existing) throw new ConflictException('Permission already assigned to this role in this branch');
+    const branchPermission = this.branchPermissionRepository.create({
       role: { id: roleId },
       permission: { id: assignPermissionDto.permission_id },
+      branch: { id: branchId },
     });
-    return this.rolePermissionRepository.save(rolePermission);
+    return this.branchPermissionRepository.save(branchPermission);
   }
 
-  async removeFromRole(roleId: string, permissionId: string): Promise<void> {
-    const rp = await this.rolePermissionRepository.findOne({
-      where: { role: { id: roleId }, permission: { id: permissionId } },
+  async removeFromRole(roleId: string, permissionId: string, branchId: string): Promise<void> {
+    const bp = await this.branchPermissionRepository.findOne({
+      where: { role: { id: roleId }, permission: { id: permissionId }, branch: { id: branchId } },
     });
-    if (!rp) throw new NotFoundException('Permission not assigned to this role');
-    await this.rolePermissionRepository.remove(rp);
+    if (!bp) throw new NotFoundException('Permission not assigned to this role in this branch');
+    await this.branchPermissionRepository.remove(bp);
   }
 
-  async getPermissionsForRole(roleId: string): Promise<Permission[]> {
-    const rolePermissions = await this.rolePermissionRepository.find({
-      where: { role: { id: roleId } },
-      relations: ['permission'],
-    });
-    return rolePermissions.map((rp) => rp.permission);
+  async getPermissionsForRole(roleId: string, branchId?: string): Promise<Permission[]> {
+    if (branchId) {
+      const branchPermissions = await this.branchPermissionRepository.find({
+        where: { role: { id: roleId }, branch: { id: branchId } },
+        relations: ['permission'],
+      });
+      return branchPermissions.map((bp) => bp.permission);
+    }
+    return []; // No global permissions anymore
   }
 
   async seedAllPermissions(): Promise<Permission[]> {
@@ -96,27 +97,6 @@ export class PermissionsService {
     return permissions;
   }
 
-  async assignManagePermissionsToRole(roleId: string): Promise<void> {
-    const resources = Object.values(PermissionResource);
-    for (const resource of resources) {
-      const permission = await this.permissionRepository.findOne({
-        where: { action: PermissionAction.MANAGE, resource },
-      });
-      if (!permission) continue;
-      
-      const existing = await this.rolePermissionRepository.findOne({
-        where: { role: { id: roleId }, permission: { id: permission.id } },
-      });
-      if (!existing) {
-        await this.rolePermissionRepository.save(
-          this.rolePermissionRepository.create({
-            role: { id: roleId },
-            permission: { id: permission.id },
-          }),
-        );
-      }
-    }
-  }
 
   async assignManagePermissionsToRoleForBranch(roleId: string, branchId: string): Promise<void> {
     const resources = Object.values(PermissionResource);

@@ -45,7 +45,7 @@ export class UsersService {
   async findByEmail(email: string): Promise<User | null> {
     return this.userRepository.findOne({
       where: { email, is_active: true },
-      relations: ['user_roles', 'user_roles.role', 'user_roles.role.role_permissions', 'user_roles.role.role_permissions.permission'],
+      relations: ['user_roles', 'user_roles.role', 'user_roles.role.branch_permissions', 'user_roles.role.branch_permissions.permission'],
     });
   }
 

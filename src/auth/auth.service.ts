@@ -34,17 +34,17 @@ export class AuthService {
     // Obtener branch_id del usuario
     const branch_id = user.branch_id;
     
-    // Obtener permisos por sucursal si el usuario tiene branch_id
+    // Obtener permisos por sucursal (solo se usa branch_permissions ahora)
     const permissions = (user.user_roles ?? [])
       .flatMap((ur) => {
+        // Todos los usuarios ahora requieren branch_id
         if (branch_id) {
-          // Permisos por sucursal - filtrar por branch_id
           return ur.role?.branch_permissions
             ?.filter((bp: any) => bp.branch_id === branch_id)
             ?.map((bp: any) => bp.permission) ?? [];
         } else {
-          // Permisos globales (para usuarios sin sucursal asignada)
-          return ur.role?.role_permissions?.map((rp: any) => rp.permission) ?? [];
+          // Si no hay branch_id, no hay permisos
+          return [];
         }
       })
       .filter(Boolean)
