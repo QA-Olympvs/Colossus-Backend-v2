@@ -52,6 +52,7 @@ export class UsersService {
         'user_roles',
         'user_roles.role',
         'user_roles.role.branch_permissions',
+        'user_roles.role.branch_permissions.permission',
         'user_roles.role.role_permissions',
         'user_roles.role.role_permissions.permission',
       ],

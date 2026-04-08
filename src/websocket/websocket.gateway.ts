@@ -12,10 +12,15 @@ import { Injectable, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { OnEvent } from '@nestjs/event-emitter';
 
+const allowedOrigins =
+  process.env.ALLOWED_ORIGINS?.split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean) ?? [];
+
 @WebSocketGateway({
   namespace: '/realtime',
   cors: {
-    origin: ['http://localhost:4200', 'https://api.example.com'],
+    origin: allowedOrigins,
     credentials: true,
   },
   transports: ['websocket', 'polling'],

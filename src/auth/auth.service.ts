@@ -146,10 +146,10 @@ export class AuthService {
     type PermissionRef = { resource: string; action: string };
     type BranchPermissionRef = {
       branch_id: string;
-      permission: PermissionRef | null;
+      permission?: PermissionRef | null;
     };
     type RolePermissionRef = {
-      permission: PermissionRef | null;
+      permission?: PermissionRef | null;
     };
 
     const branch_id = user.branch_id;
@@ -161,7 +161,11 @@ export class AuthService {
           return branchPermissions
             .filter(
               (bp): bp is BranchPermissionRef & { permission: PermissionRef } =>
-                bp.branch_id === branch_id && bp.permission !== null,
+                !!bp &&
+                bp.branch_id === branch_id &&
+                !!bp.permission &&
+                typeof bp.permission.resource === 'string' &&
+                typeof bp.permission.action === 'string',
             )
             .map((bp) => bp.permission);
         } else {
@@ -169,7 +173,12 @@ export class AuthService {
             []) as RolePermissionRef[];
           return rolePermissions
             .map((rp) => rp.permission)
-            .filter((p): p is PermissionRef => p !== null);
+            .filter(
+              (p): p is PermissionRef =>
+                !!p &&
+                typeof p.resource === 'string' &&
+                typeof p.action === 'string',
+            );
         }
       })
       .map((p) => `${p.resource}:${p.action}`);
