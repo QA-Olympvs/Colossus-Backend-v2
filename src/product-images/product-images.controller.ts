@@ -1,4 +1,5 @@
 import { Controller, Post, Body, UseGuards } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { ProductImagesService } from './product-images.service';
 import { GeneratePresignedUrlDto } from './dto/generate-presigned-url.dto';
@@ -6,6 +7,7 @@ import { PresignedUrlResponseDto } from './dto/presigned-url-response.dto';
 import { ConfirmUploadDto } from './dto/confirm-upload.dto';
 import { Product } from '@/products/entities/product.entity';
 
+@ApiTags('product-images')
 @Controller('product-images')
 @UseGuards(AuthGuard('jwt'))
 export class ProductImagesController {

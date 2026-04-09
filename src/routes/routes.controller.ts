@@ -9,6 +9,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { RoutesService } from './routes.service';
 import { CreateRouteDto } from './dto/create-route.dto';
 import { UpdateRouteDto } from './dto/update-route.dto';
@@ -18,6 +19,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ModuleAccessGuard } from '../auth/guards/module-access.guard';
 import { HasModuleAccess } from '../auth/decorators/has-module-access.decorator';
 
+@ApiTags('routes')
 @Controller('routes')
 export class RoutesController {
   constructor(private readonly routesService: RoutesService) {}

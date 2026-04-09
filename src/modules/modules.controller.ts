@@ -9,6 +9,7 @@ import {
   UseGuards,
   Request,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { ModulesService } from './modules.service';
 import { CreateModuleDto } from './dto/create-module.dto';
 import { UpdateModuleDto } from './dto/update-module.dto';
@@ -26,6 +27,7 @@ interface AuthenticatedRequest {
 }
 
 @UseGuards(JwtAuthGuard, PermissionsGuard)
+@ApiTags('modules')
 @Controller('modules')
 export class ModulesController {
   constructor(private readonly modulesService: ModulesService) {}

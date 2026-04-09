@@ -8,10 +8,12 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { CustomerDirectionsService } from './customer-directions.service';
 import { CreateCustomerDirectionDto } from './dto/create-customer-direction.dto';
 import { UpdateCustomerDirectionDto } from './dto/update-customer-direction.dto';
 
+@ApiTags('customer-directions')
 @Controller('customer-directions')
 export class CustomerDirectionsController {
   constructor(

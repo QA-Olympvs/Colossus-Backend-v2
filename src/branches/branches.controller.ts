@@ -10,6 +10,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { BranchesService } from './branches.service';
 import { CreateBranchDto } from './dto/create-branch.dto';
@@ -17,6 +18,7 @@ import { UpdateBranchDto } from './dto/update-branch.dto';
 import { CreateBranchScheduleDto } from './dto/create-branch-schedule.dto';
 import { DashboardQueryDto } from './dto/dashboard-query.dto';
 
+@ApiTags('branches')
 @Controller('branches')
 export class BranchesController {
   constructor(private readonly branchesService: BranchesService) {}
