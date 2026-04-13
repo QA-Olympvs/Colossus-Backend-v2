@@ -49,6 +49,7 @@ export class UsersService {
       where: { id },
       relations: [
         'branch',
+        'customer',
         'user_roles',
         'user_roles.role',
         'user_roles.role.branch_permissions',

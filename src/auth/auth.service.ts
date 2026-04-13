@@ -130,6 +130,7 @@ export class AuthService {
     last_name: string;
     phone?: string;
     branch_id?: string;
+    customer_id?: string | null;
     is_owner: boolean;
     is_active: boolean;
     roles: string[];
@@ -224,6 +225,7 @@ export class AuthService {
       last_name: user.last_name,
       phone: user.phone,
       branch_id: user.branch_id,
+      customer_id: user.customer?.id ?? null,
       is_owner: user.is_owner ?? false,
       is_active: user.is_active ?? true,
       roles: [...new Set(roles)],
