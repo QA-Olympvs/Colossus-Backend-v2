@@ -6,15 +6,20 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { OrderStatus } from './entities/order.entity';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
 
 @ApiTags('orders')
+@ApiBearerAuth('JWT-auth')
+@UseGuards(JwtAuthGuard)
 @Controller('orders')
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
@@ -26,11 +31,11 @@ export class OrdersController {
 
   @Get()
   findAll(
+    @CurrentUser() user: any,
     @Query('branchId') branchId?: string,
     @Query('status') status?: OrderStatus,
   ) {
-    const user = (this as any).user || {}; // Obtener usuario del request
-    return this.ordersService.findAll(user.branch_id, branchId, status);
+    return this.ordersService.findAll(user, branchId, status);
   }
 
   @Get(':id')
@@ -41,6 +46,11 @@ export class OrdersController {
   @Get('number/:orderNumber')
   findByOrderNumber(@Param('orderNumber') orderNumber: string) {
     return this.ordersService.findByOrderNumber(orderNumber);
+  }
+
+  @Get('my-orders')
+  findMyOrders(@CurrentUser() user: any) {
+    return this.ordersService.findMyOrders(user.customer_id);
   }
 
   @Patch(':id/status')

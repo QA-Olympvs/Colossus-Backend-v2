@@ -2,6 +2,7 @@ import { NestFactory, Reflector } from '@nestjs/core';
 import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { TypeormExceptionFilter } from './common/filters/typeorm-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -14,6 +15,7 @@ async function bootstrap() {
     allowedHeaders: 'Content-Type, Accept, Authorization',
     credentials: true,
   });
+  app.useGlobalFilters(new TypeormExceptionFilter());
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -27,7 +29,9 @@ async function bootstrap() {
   // Configurar Swagger
   const config = new DocumentBuilder()
     .setTitle('Colossus Backend API')
-    .setDescription('API documentation for Colossus - Multi-tenant Point of Sale System')
+    .setDescription(
+      'API documentation for Colossus - Multi-tenant Point of Sale System',
+    )
     .setVersion('2.0.0')
     .addTag('auth', 'Authentication endpoints')
     .addTag('users', 'User management')
@@ -60,6 +64,8 @@ async function bootstrap() {
 
   await app.listen(process.env.PORT ?? 3000);
   console.log(`Application is running on: ${process.env.PORT ?? 3000}`);
-  console.log(`Swagger documentation available at: http://localhost:${process.env.PORT ?? 3000}/api/docs`);
+  console.log(
+    `Swagger documentation available at: http://localhost:${process.env.PORT ?? 3000}/api/docs`,
+  );
 }
 bootstrap();

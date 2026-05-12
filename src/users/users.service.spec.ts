@@ -5,13 +5,18 @@ import { Repository } from 'typeorm';
 import { UsersService } from './users.service';
 import { User } from './entities/user.entity';
 import { UserRole } from './entities/user-role.entity';
-import { ConflictException, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { MockedFunction } from 'vitest';
 
 // Mock bcrypt
 vi.mock('bcrypt', () => ({
   hash: vi.fn().mockResolvedValue('hashed_password'),
+  compare: vi.fn().mockResolvedValue(true),
 }));
 
 describe('UsersService', () => {
@@ -127,6 +132,7 @@ describe('UsersService', () => {
         where: { id: mockUser.id },
         relations: [
           'branch',
+          'customer',
           'user_roles',
           'user_roles.role',
           'user_roles.role.branch_permissions',
@@ -188,6 +194,88 @@ describe('UsersService', () => {
       expect(userRepository.save!).toHaveBeenCalledWith(
         expect.objectContaining({ is_active: false }),
       );
+    });
+  });
+
+  describe('updateMe', () => {
+    it('should update user with only allowed fields and return updated user', async () => {
+      const existingUser = {
+        ...mockUser,
+        first_name: 'Old',
+        last_name: 'Name',
+        phone: '123',
+      };
+      userRepository.findOne!.mockResolvedValue(existingUser);
+      userRepository.save!.mockImplementation((user) => Promise.resolve(user));
+
+      const updateDto = { first_name: 'New', phone: '456' };
+      const result = await service.updateMe(mockUser.id as string, updateDto);
+
+      expect(userRepository.findOne).toHaveBeenCalledWith({
+        where: { id: mockUser.id },
+        relations: expect.any(Array),
+      });
+      expect(result.first_name).toBe('New');
+      expect(result.phone).toBe('456');
+      expect(result.last_name).toBe('Name');
+    });
+
+    it('should throw NotFoundException if user not found', async () => {
+      userRepository.findOne!.mockResolvedValue(null);
+
+      await expect(
+        service.updateMe('non-existent-id', { first_name: 'Test' }),
+      ).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('changePassword', () => {
+    it('should hash new password and save when current password matches', async () => {
+      const existingUser = { ...mockUser, password: 'old_hash' };
+      userRepository.findOne!.mockResolvedValue(existingUser);
+      userRepository.save!.mockResolvedValue({
+        ...mockUser,
+        password: 'hashed_password',
+      });
+
+      await service.changePassword(
+        mockUser.id as string,
+        'correct123',
+        'newSecure456!',
+      );
+
+      expect(bcrypt.compare).toHaveBeenCalledWith('correct123', 'old_hash');
+      expect(bcrypt.hash).toHaveBeenCalledWith('newSecure456!', 10);
+      expect(userRepository.save).toHaveBeenCalledWith(
+        expect.objectContaining({ password: 'hashed_password' }),
+      );
+    });
+
+    it('should throw UnauthorizedException when current password is wrong', async () => {
+      (
+        bcrypt.compare as MockedFunction<typeof bcrypt.compare>
+      ).mockResolvedValue(false);
+      const existingUser = { ...mockUser, password: 'old_hash' };
+      userRepository.findOne!.mockResolvedValue(existingUser);
+
+      await expect(
+        service.changePassword(
+          mockUser.id as string,
+          'wrong123',
+          'newSecure456!',
+        ),
+      ).rejects.toThrow(UnauthorizedException);
+
+      expect(bcrypt.compare).toHaveBeenCalledWith('wrong123', 'old_hash');
+      expect(userRepository.save).not.toHaveBeenCalled();
+    });
+
+    it('should throw NotFoundException if user not found', async () => {
+      userRepository.findOne!.mockResolvedValue(null);
+
+      await expect(
+        service.changePassword('non-existent-id', 'current', 'new12345'),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 });

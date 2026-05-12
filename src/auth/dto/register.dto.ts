@@ -18,7 +18,7 @@ export class RegisterDto {
     description: 'User first name',
     example: 'John',
     type: 'string',
-    maxLength: 100
+    maxLength: 100,
   })
   @IsString()
   @IsNotEmpty()
@@ -29,7 +29,7 @@ export class RegisterDto {
     description: 'User last name',
     example: 'Doe',
     type: 'string',
-    maxLength: 100
+    maxLength: 100,
   })
   @IsString()
   @IsNotEmpty()
@@ -40,7 +40,7 @@ export class RegisterDto {
     description: 'User email address',
     example: 'newuser@mitienda.com',
     type: 'string',
-    format: 'email'
+    format: 'email',
   })
   @IsEmail()
   @IsNotEmpty()
@@ -50,7 +50,7 @@ export class RegisterDto {
     description: 'User phone number',
     example: '+1234567890',
     type: 'string',
-    maxLength: 20
+    maxLength: 20,
   })
   @IsString()
   @IsOptional()
@@ -62,7 +62,7 @@ export class RegisterDto {
     example: 'Password123!',
     type: 'string',
     format: 'password',
-    minLength: 8
+    minLength: 8,
   })
   @IsString()
   @IsNotEmpty()
@@ -72,7 +72,7 @@ export class RegisterDto {
   @ApiPropertyOptional({
     description: 'Whether user is the owner of the business',
     example: false,
-    type: 'boolean'
+    type: 'boolean',
   })
   @IsOptional()
   is_owner?: boolean;
@@ -82,7 +82,7 @@ export class RegisterDto {
     description: 'Branch name (only for first user)',
     example: 'Sucursal Principal',
     type: 'string',
-    maxLength: 150
+    maxLength: 150,
   })
   @IsString()
   @IsOptional()
@@ -92,7 +92,7 @@ export class RegisterDto {
   @ApiPropertyOptional({
     description: 'Branch address (only for first user)',
     example: 'Calle Principal #123',
-    type: 'string'
+    type: 'string',
   })
   @IsString()
   @IsOptional()
@@ -102,7 +102,7 @@ export class RegisterDto {
     description: 'Branch phone (only for first user)',
     example: '+1234567890',
     type: 'string',
-    maxLength: 20
+    maxLength: 20,
   })
   @IsString()
   @IsOptional()
@@ -113,7 +113,7 @@ export class RegisterDto {
     description: 'Branch email (only for first user)',
     example: 'branch@mitienda.com',
     type: 'string',
-    format: 'email'
+    format: 'email',
   })
   @IsEmail()
   @IsOptional()
@@ -123,7 +123,7 @@ export class RegisterDto {
     description: 'Branch RFC (only for first user)',
     example: 'ABC123456XYZ',
     type: 'string',
-    maxLength: 13
+    maxLength: 13,
   })
   @IsString()
   @IsOptional()
@@ -137,7 +137,7 @@ export class RegisterDto {
     description: 'Branch latitude (only for first user)',
     example: 19.4326,
     type: 'number',
-    minimum: 0
+    minimum: 0,
   })
   @IsNumber()
   @IsOptional()
@@ -148,7 +148,7 @@ export class RegisterDto {
     description: 'Branch longitude (only for first user)',
     example: -99.1332,
     type: 'number',
-    minimum: 0
+    minimum: 0,
   })
   @IsNumber()
   @IsOptional()

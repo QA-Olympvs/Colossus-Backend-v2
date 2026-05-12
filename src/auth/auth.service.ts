@@ -44,6 +44,7 @@ export class AuthService {
       sub: user.id,
       email: user.email,
       branch_id: user.branch_id,
+      customer_id: user.customer?.id,
     };
     return { access_token: this.jwtService.sign(payload) };
   }

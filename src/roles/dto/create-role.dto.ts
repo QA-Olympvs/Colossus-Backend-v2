@@ -12,7 +12,7 @@ export class CreateRoleDto {
     description: 'Role name',
     example: 'MANAGER',
     type: 'string',
-    maxLength: 50
+    maxLength: 50,
   })
   @IsString()
   @IsNotEmpty()
@@ -22,7 +22,7 @@ export class CreateRoleDto {
   @ApiPropertyOptional({
     description: 'Role description',
     example: 'Store manager with full access to branch operations',
-    type: 'string'
+    type: 'string',
   })
   @IsString()
   @IsOptional()
@@ -31,7 +31,7 @@ export class CreateRoleDto {
   @ApiPropertyOptional({
     description: 'Whether this is a system role (cannot be deleted)',
     example: false,
-    type: 'boolean'
+    type: 'boolean',
   })
   @IsOptional()
   is_system?: boolean;

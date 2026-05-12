@@ -10,7 +10,14 @@ import {
   UseGuards,
   Req,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam, ApiQuery } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiParam,
+  ApiQuery,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -24,27 +31,28 @@ export class ProductsController {
   @Post()
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Create a new product',
-    description: 'Creates a new product in the system. Requires authentication token.'
+    description:
+      'Creates a new product in the system. Requires authentication token.',
   })
-  @ApiResponse({ 
-    status: 201, 
+  @ApiResponse({
+    status: 201,
     description: 'Product created successfully',
     schema: {
       example: {
-        id: "123e4567-e89b-12d3-a456-426614174000",
-        name: "Laptop Dell XPS 15",
-        description: "High-performance laptop with 16GB RAM",
+        id: '123e4567-e89b-12d3-a456-426614174000',
+        name: 'Laptop Dell XPS 15',
+        description: 'High-performance laptop with 16GB RAM',
         price: 1299.99,
         stock: 10,
-        category_id: "456e7890-e89b-12d3-a456-426614174000",
-        sku: "DELL-XPS15-001",
-        image_url: "https://example.com/laptop.jpg",
-        created_at: "2024-01-15T10:30:00Z",
-        updated_at: "2024-01-15T10:30:00Z"
-      }
-    }
+        category_id: '456e7890-e89b-12d3-a456-426614174000',
+        sku: 'DELL-XPS15-001',
+        image_url: 'https://example.com/laptop.jpg',
+        created_at: '2024-01-15T10:30:00Z',
+        updated_at: '2024-01-15T10:30:00Z',
+      },
+    },
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 400, description: 'Bad Request - Invalid data' })
@@ -57,39 +65,40 @@ export class ProductsController {
   }
 
   @Get()
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Get all products',
-    description: 'Retrieves a list of products. Can filter by business ID and/or branch ID.'
+    description:
+      'Retrieves a list of products. Can filter by business ID and/or branch ID.',
   })
-  @ApiResponse({ 
-    status: 200, 
+  @ApiResponse({
+    status: 200,
     description: 'Products retrieved successfully',
     schema: {
       example: [
         {
-          id: "123e4567-e89b-12d3-a456-426614174000",
-          name: "Laptop Dell XPS 15",
+          id: '123e4567-e89b-12d3-a456-426614174000',
+          name: 'Laptop Dell XPS 15',
           price: 1299.99,
           stock: 10,
           category: {
-            id: "456e7890-e89b-12d3-a456-426614174000",
-            name: "Electrónica"
-          }
-        }
-      ]
-    }
+            id: '456e7890-e89b-12d3-a456-426614174000',
+            name: 'Electrónica',
+          },
+        },
+      ],
+    },
   })
-  @ApiQuery({ 
-    name: 'businessId', 
-    required: false, 
+  @ApiQuery({
+    name: 'businessId',
+    required: false,
     description: 'Filter by business ID',
-    example: 'business-uuid-here'
+    example: 'business-uuid-here',
   })
-  @ApiQuery({ 
-    name: 'branchId', 
-    required: false, 
+  @ApiQuery({
+    name: 'branchId',
+    required: false,
     description: 'Filter by branch ID',
-    example: 'branch-uuid-here'
+    example: 'branch-uuid-here',
   })
   findAll(
     @Query('businessId') businessId?: string,
@@ -100,39 +109,39 @@ export class ProductsController {
     const user = req?.user || {};
     const effectiveBusinessId = businessId || user.business_id;
     const effectiveBranchId = branchId || user.branch_id;
-    
+
     return this.productsService.findAll(effectiveBusinessId, effectiveBranchId);
   }
 
   @Get(':id')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Get product by ID',
-    description: 'Retrieves a specific product by its unique identifier.'
+    description: 'Retrieves a specific product by its unique identifier.',
   })
-  @ApiResponse({ 
-    status: 200, 
+  @ApiResponse({
+    status: 200,
     description: 'Product retrieved successfully',
     schema: {
       example: {
-        id: "123e4567-e89b-12d3-a456-426614174000",
-        name: "Laptop Dell XPS 15",
-        description: "High-performance laptop with 16GB RAM",
+        id: '123e4567-e89b-12d3-a456-426614174000',
+        name: 'Laptop Dell XPS 15',
+        description: 'High-performance laptop with 16GB RAM',
         price: 1299.99,
         stock: 10,
         category: {
-          id: "456e7890-e89b-12d3-a456-426614174000",
-          name: "Electrónica"
+          id: '456e7890-e89b-12d3-a456-426614174000',
+          name: 'Electrónica',
         },
-        sku: "DELL-XPS15-001",
-        image_url: "https://example.com/laptop.jpg"
-      }
-    }
+        sku: 'DELL-XPS15-001',
+        image_url: 'https://example.com/laptop.jpg',
+      },
+    },
   })
   @ApiResponse({ status: 404, description: 'Product not found' })
-  @ApiParam({ 
-    name: 'id', 
+  @ApiParam({
+    name: 'id',
     description: 'Product UUID',
-    example: '123e4567-e89b-12d3-a456-426614174000'
+    example: '123e4567-e89b-12d3-a456-426614174000',
   })
   findOne(@Param('id') id: string) {
     return this.productsService.findOne(id);
@@ -141,28 +150,29 @@ export class ProductsController {
   @Patch(':id')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Update product',
-    description: 'Updates product information. Only provided fields will be updated.'
+    description:
+      'Updates product information. Only provided fields will be updated.',
   })
-  @ApiResponse({ 
-    status: 200, 
+  @ApiResponse({
+    status: 200,
     description: 'Product updated successfully',
     schema: {
       example: {
-        id: "123e4567-e89b-12d3-a456-426614174000",
-        name: "Laptop Dell XPS 15 (Updated)",
+        id: '123e4567-e89b-12d3-a456-426614174000',
+        name: 'Laptop Dell XPS 15 (Updated)',
         price: 1199.99,
-        stock: 8
-      }
-    }
+        stock: 8,
+      },
+    },
   })
   @ApiResponse({ status: 404, description: 'Product not found' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiParam({ 
-    name: 'id', 
+  @ApiParam({
+    name: 'id',
     description: 'Product UUID to update',
-    example: '123e4567-e89b-12d3-a456-426614174000'
+    example: '123e4567-e89b-12d3-a456-426614174000',
   })
   update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
     return this.productsService.update(id, updateProductDto);
@@ -171,29 +181,29 @@ export class ProductsController {
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Delete product',
-    description: 'Permanently deletes a product from the system.'
+    description: 'Permanently deletes a product from the system.',
   })
-  @ApiResponse({ 
-    status: 200, 
+  @ApiResponse({
+    status: 200,
     description: 'Product deleted successfully',
     schema: {
       example: {
-        message: "Product deleted successfully",
+        message: 'Product deleted successfully',
         deletedProduct: {
-          id: "123e4567-e89b-12d3-a456-426614174000",
-          name: "Laptop Dell XPS 15"
-        }
-      }
-    }
+          id: '123e4567-e89b-12d3-a456-426614174000',
+          name: 'Laptop Dell XPS 15',
+        },
+      },
+    },
   })
   @ApiResponse({ status: 404, description: 'Product not found' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiParam({ 
-    name: 'id', 
+  @ApiParam({
+    name: 'id',
     description: 'Product UUID to delete',
-    example: '123e4567-e89b-12d3-a456-426614174000'
+    example: '123e4567-e89b-12d3-a456-426614174000',
   })
   remove(@Param('id') id: string) {
     return this.productsService.remove(id);

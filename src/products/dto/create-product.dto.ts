@@ -13,7 +13,8 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateProductDto {
   @ApiPropertyOptional({
-    description: 'Branch ID where the product belongs. If not provided, uses the authenticated user\'s branch.',
+    description:
+      "Branch ID where the product belongs. If not provided, uses the authenticated user's branch.",
     example: 'a5664473-a72c-426b-8162-72de03b573a5',
     format: 'uuid',
   })
@@ -42,7 +43,8 @@ export class CreateProductDto {
 
   @ApiPropertyOptional({
     description: 'Detailed product description',
-    example: 'High-performance laptop with 16GB RAM, 512GB SSD, and Intel Core i7 processor',
+    example:
+      'High-performance laptop with 16GB RAM, 512GB SSD, and Intel Core i7 processor',
   })
   @IsString()
   @IsOptional()

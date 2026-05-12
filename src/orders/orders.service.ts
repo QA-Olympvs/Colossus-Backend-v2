@@ -4,11 +4,14 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, QueryFailedError, Repository } from 'typeorm';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Order, OrderStatus } from './entities/order.entity';
 import { OrderItem } from './entities/order-item.entity';
 import { Payment, PaymentStatus } from './entities/payment.entity';
+import { Branch } from '../branches/entities/branch.entity';
+import { Customer } from '../customers/entities/customer.entity';
+import { Product } from '../products/entities/product.entity';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 import { CreatePaymentDto } from './dto/create-payment.dto';
@@ -22,7 +25,14 @@ export class OrdersService {
     private readonly orderItemRepository: Repository<OrderItem>,
     @InjectRepository(Payment)
     private readonly paymentRepository: Repository<Payment>,
+    @InjectRepository(Branch)
+    private readonly branchRepository: Repository<Branch>,
+    @InjectRepository(Customer)
+    private readonly customerRepository: Repository<Customer>,
+    @InjectRepository(Product)
+    private readonly productRepository: Repository<Product>,
     private readonly eventEmitter: EventEmitter2,
+    private readonly dataSource: DataSource,
   ) {}
 
   private generateOrderNumber(): string {
@@ -47,6 +57,34 @@ export class OrdersService {
       throw new BadRequestException('Order must have at least one item');
     }
 
+    const branch = await this.branchRepository.findOne({
+      where: { id: dto.branch_id },
+    });
+    if (!branch) {
+      throw new BadRequestException(
+        `Referenced branch not found: ${dto.branch_id}`,
+      );
+    }
+
+    if (dto.customer_id) {
+      const customer = await this.customerRepository.findOne({
+        where: { id: dto.customer_id },
+      });
+      if (!customer) {
+        throw new BadRequestException(
+          `Referenced customer not found: ${dto.customer_id}`,
+        );
+      }
+    }
+
+    const productIds = [...new Set(dto.items.map((item) => item.product_id))];
+    const products = await this.productRepository.findByIds(productIds);
+    if (products.length !== productIds.length) {
+      const foundIds = new Set(products.map((p) => p.id));
+      const missing = productIds.find((id) => !foundIds.has(id));
+      throw new BadRequestException(`Referenced product not found: ${missing}`);
+    }
+
     const subtotal = this.calculateTotals(dto.items);
     const discountAmount = dto.discount_amount ?? 0;
     const taxAmount = dto.tax_amount ?? 0;
@@ -55,76 +93,111 @@ export class OrdersService {
       (subtotal - discountAmount + taxAmount + deliveryFee).toFixed(2),
     );
 
-    const order = this.orderRepository.create({
-      ...dto,
-      order_number: this.generateOrderNumber(),
-      subtotal,
-      discount_amount: discountAmount,
-      tax_amount: taxAmount,
-      delivery_fee: deliveryFee,
-      total,
-    });
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
 
-    const savedOrder = await this.orderRepository.save(order);
+    try {
+      const order = this.orderRepository.create({
+        ...dto,
+        order_number: this.generateOrderNumber(),
+        subtotal,
+        discount_amount: discountAmount,
+        tax_amount: taxAmount,
+        delivery_fee: deliveryFee,
+        total,
+      });
 
-    const orderItems = dto.items.map((item) =>
-      this.orderItemRepository.create({
-        order_id: savedOrder.id,
-        product_id: item.product_id,
-        unit_price: item.unit_price,
-        quantity: item.quantity,
-        discount_amount: item.discount_amount ?? 0,
-        subtotal: parseFloat(
-          (
-            item.unit_price * item.quantity -
-            (item.discount_amount ?? 0)
-          ).toFixed(2),
-        ),
-        notes: item.notes,
-      }),
-    );
+      const savedOrder = await queryRunner.manager.save(order);
 
-    await this.orderItemRepository.save(orderItems);
+      const orderItems = dto.items.map((item) =>
+        this.orderItemRepository.create({
+          order_id: savedOrder.id,
+          product_id: item.product_id,
+          unit_price: item.unit_price,
+          quantity: item.quantity,
+          discount_amount: item.discount_amount ?? 0,
+          subtotal: parseFloat(
+            (
+              item.unit_price * item.quantity -
+              (item.discount_amount ?? 0)
+            ).toFixed(2),
+          ),
+          notes: item.notes,
+        }),
+      );
 
-    const fullOrder = await this.findOne(savedOrder.id);
+      await queryRunner.manager.save(orderItems);
 
-    this.eventEmitter.emit('order.created', {
-      branchId: fullOrder.branch_id,
-      order: {
-        id: fullOrder.id,
-        order_number: fullOrder.order_number,
-        branch_id: fullOrder.branch_id,
-        status: fullOrder.status,
-        total: fullOrder.total,
-        customer_id: fullOrder.customer_id,
-        user_id: fullOrder.user_id,
-        type: fullOrder.type,
-        created_at: fullOrder.created_at,
-      },
-    });
+      await queryRunner.commitTransaction();
 
-    return fullOrder;
+      const fullOrder = await this.findOne(savedOrder.id);
+
+      this.eventEmitter.emit('order.created', {
+        branchId: fullOrder.branch_id,
+        order: {
+          id: fullOrder.id,
+          order_number: fullOrder.order_number,
+          branch_id: fullOrder.branch_id,
+          status: fullOrder.status,
+          total: fullOrder.total,
+          customer_id: fullOrder.customer_id,
+          user_id: fullOrder.user_id,
+          type: fullOrder.type,
+          created_at: fullOrder.created_at,
+        },
+      });
+
+      return fullOrder;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+
+      if (error instanceof QueryFailedError) {
+        const pgError = error.driverError as {
+          code?: string;
+          message?: string;
+        };
+        throw new BadRequestException(pgError.message || error.message);
+      }
+
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
   }
 
   async findAll(
-    userBranchId?: string,
+    user: any,
     branchId?: string,
     status?: OrderStatus,
   ): Promise<Order[]> {
     const where: Record<string, unknown> = { is_archived: false };
 
-    // Si el usuario tiene branch_id, solo puede ver órdenes de su sucursal
-    if (userBranchId) {
-      where.branch_id = userBranchId;
-    } else if (branchId) {
-      // Usuario global puede filtrar por branch_id específico
-      where.branch_id = branchId;
+    const isAdmin = user?.roles?.some(
+      (role: string) => role === 'super_admin' || role === 'admin',
+    );
+
+    if (isAdmin) {
+      if (branchId) {
+        where.branch_id = branchId;
+      }
+      // No branch filter if admin and no branchId param
+    } else {
+      where.branch_id = branchId ?? user?.branch_id;
     }
 
     if (status) where.status = status;
     return this.orderRepository.find({
       where,
       relations: ['items', 'items.product', 'payments', 'customer', 'branch'],
+      order: { created_at: 'DESC' },
+    });
+  }
+
+  async findMyOrders(customerId: string): Promise<Order[]> {
+    return this.orderRepository.find({
+      where: { customer_id: customerId, is_archived: false },
+      relations: ['items', 'items.product', 'payments', 'branch'],
       order: { created_at: 'DESC' },
     });
   }

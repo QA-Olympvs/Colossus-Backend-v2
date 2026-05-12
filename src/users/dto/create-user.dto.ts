@@ -14,7 +14,7 @@ export class CreateUserDto {
     description: 'Branch ID where the user belongs',
     example: 'a5664473-a72c-426b-8162-72de03b573a5',
     type: 'string',
-    format: 'uuid'
+    format: 'uuid',
   })
   @IsUUID()
   @IsOptional()
@@ -24,7 +24,7 @@ export class CreateUserDto {
     description: 'User first name',
     example: 'John',
     type: 'string',
-    maxLength: 100
+    maxLength: 100,
   })
   @IsString()
   @IsNotEmpty()
@@ -35,7 +35,7 @@ export class CreateUserDto {
     description: 'User last name',
     example: 'Doe',
     type: 'string',
-    maxLength: 100
+    maxLength: 100,
   })
   @IsString()
   @IsNotEmpty()
@@ -46,7 +46,7 @@ export class CreateUserDto {
     description: 'User email address',
     example: 'newuser@mitienda.com',
     type: 'string',
-    format: 'email'
+    format: 'email',
   })
   @IsEmail()
   @IsNotEmpty()
@@ -57,7 +57,7 @@ export class CreateUserDto {
     example: 'Password123!',
     type: 'string',
     format: 'password',
-    minLength: 8
+    minLength: 8,
   })
   @IsString()
   @IsNotEmpty()
@@ -68,7 +68,7 @@ export class CreateUserDto {
     description: 'User phone number',
     example: '+1234567890',
     type: 'string',
-    maxLength: 20
+    maxLength: 20,
   })
   @IsString()
   @IsOptional()
@@ -78,7 +78,7 @@ export class CreateUserDto {
   @ApiPropertyOptional({
     description: 'Whether user is the owner of the business',
     example: false,
-    type: 'boolean'
+    type: 'boolean',
   })
   @IsOptional()
   is_owner?: boolean;

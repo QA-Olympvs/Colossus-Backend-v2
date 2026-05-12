@@ -6,7 +6,7 @@ export class AssignRoleDto {
     description: 'Role ID to assign to the user',
     example: '456e7890-e89b-12d3-a456-426614174000',
     type: 'string',
-    format: 'uuid'
+    format: 'uuid',
   })
   @IsUUID()
   @IsNotEmpty()

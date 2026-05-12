@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   ConflictException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -11,6 +12,7 @@ import { UserRole } from './entities/user-role.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { AssignRoleDto } from './dto/assign-role.dto';
+import { UpdateMeDto } from './dto/update-me.dto';
 
 const SALT_ROUNDS = 10;
 
@@ -116,5 +118,27 @@ export class UsersService {
     if (!userRole)
       throw new NotFoundException('Role not assigned to this user');
     await this.userRoleRepository.remove(userRole);
+  }
+
+  async updateMe(userId: string, dto: UpdateMeDto): Promise<User> {
+    const user = await this.findOne(userId);
+    Object.assign(user, dto);
+    return this.userRepository.save(user);
+  }
+
+  async changePassword(
+    userId: string,
+    currentPassword: string,
+    newPassword: string,
+  ): Promise<void> {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) throw new NotFoundException(`User #${userId} not found`);
+
+    const match = await bcrypt.compare(currentPassword, user.password);
+    if (!match)
+      throw new UnauthorizedException('Current password is incorrect');
+
+    user.password = await bcrypt.hash(newPassword, SALT_ROUNDS);
+    await this.userRepository.save(user);
   }
 }

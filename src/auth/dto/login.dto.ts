@@ -6,7 +6,7 @@ export class LoginDto {
     description: 'User email address',
     example: 'admin@mitienda.com',
     type: 'string',
-    format: 'email'
+    format: 'email',
   })
   @IsEmail()
   @IsNotEmpty()
@@ -16,7 +16,7 @@ export class LoginDto {
     description: 'User password',
     example: 'Password123!',
     type: 'string',
-    format: 'password'
+    format: 'password',
   })
   @IsString()
   @IsNotEmpty()
